@@ -52,15 +52,11 @@ touch .ai/tasks/{records,design,todos,prompts}/.gitkeep
 
 ### CLAUDE.md（チーム共有）
 
-Git にコミットしてチーム全体で共有する Claude Code の設定です。
-
-- プロジェクト固有のコーディング規約
-- アーキテクチャガイドライン
-- 共通のワークフロー指示
+Git にコミットしてチーム全体で共有する Claude Code の設定
 
 ### CLAUDE.local.md（個人設定）
 
-`.gitignore` に追加し、各開発者がローカルでカスタマイズする設定です。
+`.gitignore` に追加し、各開発者がローカルでカスタマイズする設定
 
 - 個人のコーディングスタイル
 - ローカル環境固有の設定
