@@ -55,10 +55,10 @@ echo ""
 if [ -f "$TARGET_DIR/CLAUDE.md" ]; then
     echo "" >> "$TARGET_DIR/CLAUDE.md"
     echo "" >> "$TARGET_DIR/CLAUDE.md"
-    cat "$SCRIPT_DIR/CLAUDE.md" >> "$TARGET_DIR/CLAUDE.md"
+    cat "$SCRIPT_DIR/CLAUDE_ADDITION.md" >> "$TARGET_DIR/CLAUDE.md"
     print_success "CLAUDE.md に追記しました"
 else
-    cp "$SCRIPT_DIR/CLAUDE.md" "$TARGET_DIR/CLAUDE.md"
+    cp "$SCRIPT_DIR/CLAUDE_ADDITION.md" "$TARGET_DIR/CLAUDE.md"
     print_success "CLAUDE.md を作成しました"
 fi
 
@@ -84,21 +84,22 @@ for dir in "${TASK_DIRS[@]}"; do
     fi
 done
 
-# .gitignore の更新（CLAUDE.local.md のみ）
-GITIGNORE_ENTRY="CLAUDE.local.md"
+# .gitignore の更新
+GITIGNORE_ADDITION="$SCRIPT_DIR/.gitignore_ADDTION"
 
 if [ -f "$TARGET_DIR/.gitignore" ]; then
-    if grep -qxF "$GITIGNORE_ENTRY" "$TARGET_DIR/.gitignore" 2>/dev/null; then
+    # 追加内容が既に含まれているかチェック
+    if grep -qxF "CLAUDE.local.md" "$TARGET_DIR/.gitignore" 2>/dev/null; then
         print_warning ".gitignore は既に設定済みです"
     else
         echo "" >> "$TARGET_DIR/.gitignore"
         echo "# Claude Code local files" >> "$TARGET_DIR/.gitignore"
-        echo "$GITIGNORE_ENTRY" >> "$TARGET_DIR/.gitignore"
-        print_success ".gitignore に CLAUDE.local.md を追加しました"
+        cat "$GITIGNORE_ADDITION" >> "$TARGET_DIR/.gitignore"
+        print_success ".gitignore を更新しました"
     fi
 else
     echo "# Claude Code local files" > "$TARGET_DIR/.gitignore"
-    echo "$GITIGNORE_ENTRY" >> "$TARGET_DIR/.gitignore"
+    cat "$GITIGNORE_ADDITION" >> "$TARGET_DIR/.gitignore"
     print_success ".gitignore を作成しました"
 fi
 
