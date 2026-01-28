@@ -1,0 +1,14 @@
+plugin,author,description
+claude-mem,@thedotmack,会話コンテキストの永続化・セッション間での記憶保持
+typescript-lsp,@claude-plugins-official,TypeScript Language Server連携・型チェック・補完
+frontend-design,@claude-plugins-official,Gemini連携によるフロントエンドUI/デザイン生成
+commit-commands,@claude-plugins-official,Git commit・push・PR作成のショートカットコマンド
+pr-review-toolkit,@claude-plugins-official,PRレビュー用エージェント群（コードレビュー・テスト分析等）
+hookify,@claude-plugins-official,会話分析から自動フック生成・ルール設定
+context7,@claude-plugins-official,外部ライブラリドキュメントの検索・参照
+code-simplifier,@claude-plugins-official,コード簡素化・リファクタリング支援
+ralph-loop,@claude-plugins-official,継続的な自律実行ループ機能
+mgrep,@Mixedbread-Grep,セマンティック検索によるファイル・Web検索
+code-review,@claude-plugins-official,PRのコードレビュー実行
+feature-dev,@claude-plugins-official,機能開発ガイド（コード探索・設計・レビュー）
+explanatory-output-style,@claude-plugins-official,教育的な説明スタイルでの出力モード
