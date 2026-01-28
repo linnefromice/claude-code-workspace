@@ -152,10 +152,37 @@ ls .work/translated/contexts/ | wc -l
 
 ## 完了後
 
-汎用化完了後、配置スクリプトを実行してください：
+### 1. バージョン情報の更新
+
+汎用化完了後、`.work/VERSION.md` を更新してください：
+
+```bash
+# 現在のコミットハッシュを取得
+git rev-parse HEAD
+```
+
+「現在のバージョン」セクションの **汎用化実施時** を更新。
+
+### 2. 配置スクリプトの実行
 
 ```bash
 ./scripts/deploy-templates.sh
 ```
 
 これにより `.work/translated/` の内容が `template-.claude/` に配置されます（`.ja.md` → `.md` にリネーム）。
+
+### 3. バージョン履歴の追記（オプション）
+
+重要なマイルストーンの場合、`.work/VERSION.md` の「バージョン履歴」セクションに新しいエントリを追加：
+
+```markdown
+### vX (YYYY-MM-DD)
+
+| 項目 | 値 |
+|------|-----|
+| 作業日 | YYYY-MM-DD |
+| 参照元コミット | `xxxxxxx` |
+| 翻訳対象ファイル数 | XX |
+| 汎用化後ファイル数 | XX |
+| 変更内容 | 簡潔な説明 |
+```
