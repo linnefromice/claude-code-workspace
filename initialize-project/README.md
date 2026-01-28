@@ -1,4 +1,4 @@
-# claude-code-workspace
+# claude-code-workspace - Initialize project
 
 Claude Code のプロジェクト設定テンプレートです。このリポジトリをクローンまたはスクリプトを実行することで、任意のプロジェクトに Claude Code の設定を適用できます。
 
