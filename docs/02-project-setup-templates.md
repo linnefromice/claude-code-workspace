@@ -6,15 +6,34 @@
 
 ## 概要
 
-このセットアップでは `template-.claude/` の内容を対象プロジェクトの `.claude/` にコピーします：
+このセットアップでは `template-.claude/` の内容を対象プロジェクトの `.claude/` にコピーします。
+プロジェクトの種類や習熟度に応じて、適用するテンプレートを選択できます。
 
-| ディレクトリ | 内容 | ファイル数 |
-|--------------|------|-----------|
-| `agents/` | カスタムエージェント | 9 |
-| `commands/` | コマンド定義 | 20 |
-| `rules/` | 自動適用ルール | 8 |
-| `skills/` | スキル定義 | 12 |
-| `contexts/` | 起動モード切り替え | 3 |
+---
+
+## プリセット
+
+| プリセット | レベル | タイプ | ファイル数 | 推奨用途 |
+|-----------|--------|--------|-----------|---------|
+| `minimal` | 初級 | 汎用 | 約16 | Claude Code 入門者 |
+| `standard` | 初級・中級 | 汎用 | 約37 | 一般的なプロジェクト（推奨） |
+| `standard-web` | 初級・中級 | 汎用・Web | 約37 | Web開発プロジェクト |
+| `full` | 全て | 全て | 約52 | フル活用したい方 |
+
+### レベル
+
+| レベル | 説明 |
+|--------|------|
+| `beginner` | 即座に活用可能。設定不要 |
+| `intermediate` | 軽微な設定が必要。テストフレームワーク等の前提あり |
+| `advanced` | カスタムセットアップが必要。学習システム等 |
+
+### タイプ
+
+| タイプ | 説明 |
+|--------|------|
+| `general` | どのプロジェクトでも使用可能 |
+| `web` | Web開発固有（React, Next.js, E2E, Playwright等） |
 
 ---
 
@@ -27,30 +46,50 @@
 
 ## 実行方法
 
-### 方法A: デプロイスクリプト（推奨）
+### 方法A: プリセットを使用（推奨）
 
 ```bash
-# このリポジトリのディレクトリから実行
-./scripts/deploy-to-project.sh /path/to/your/project
+# 最小構成（入門者向け）
+./scripts/deploy-to-project.sh /path/to/project --preset minimal
+
+# 標準構成（推奨）
+./scripts/deploy-to-project.sh /path/to/project --preset standard
+
+# 標準構成 + Web開発向け
+./scripts/deploy-to-project.sh /path/to/project --preset standard-web
+
+# フル構成
+./scripts/deploy-to-project.sh /path/to/project --preset full
 ```
 
-**オプション:**
+### 方法B: 対話モード
 
 ```bash
-# 全てコピー（デフォルト）
-./scripts/deploy-to-project.sh /path/to/your/project
+./scripts/deploy-to-project.sh /path/to/project -i
+```
 
-# 特定のカテゴリのみコピー
-./scripts/deploy-to-project.sh /path/to/your/project --only agents,rules
+対話形式でプリセットを選択できます。
+
+### 方法C: カスタム選択
+
+```bash
+# レベルとタイプを直接指定
+./scripts/deploy-to-project.sh /path/to/project \
+  --level beginner,intermediate \
+  --type general
+```
+
+### オプション
+
+```bash
+# ドライラン（実際にはコピーしない）
+./scripts/deploy-to-project.sh /path/to/project --preset minimal --dry-run
 
 # 既存ファイルを上書き
-./scripts/deploy-to-project.sh /path/to/your/project --force
-
-# ドライラン（実際にはコピーしない）
-./scripts/deploy-to-project.sh /path/to/your/project --dry-run
+./scripts/deploy-to-project.sh /path/to/project --preset standard --force
 ```
 
-### 方法B: 手動コピー
+### 方法D: 手動コピー
 
 ```bash
 # .claude ディレクトリを作成
@@ -67,66 +106,52 @@ rm /path/to/your/project/.claude/*/CLAUDE.md 2>/dev/null
 
 ## 適用されるテンプレート
 
-### Agents（エージェント）
+詳細な分類は [MANIFEST.md](../template-.claude/MANIFEST.md) を参照してください。
 
-Task ツールから専門家として呼び出すエージェント定義。
+### 初級（beginner）- すぐに使える
 
-| ファイル | 用途 |
-|----------|------|
-| `planner.md` | 実装計画の立案 |
-| `code-reviewer.md` | コードレビュー |
-| `architect.md` | アーキテクチャ設計 |
-| `refactor-cleaner.md` | リファクタリング |
-| `security-reviewer.md` | セキュリティレビュー |
-| `tdd-guide.md` | TDD ガイド |
-| `doc-updater.md` | ドキュメント更新 |
-| `build-error-resolver.md` | ビルドエラー解決 |
-| `e2e-runner.md` | E2E テスト実行 |
+| カテゴリ | ファイル | 用途 |
+|---------|----------|------|
+| Agents | `planner.md` | 実装計画立案 |
+| | `code-reviewer.md` | コードレビュー |
+| | `refactor-cleaner.md` | リファクタリング |
+| Commands | `plan.md` | 計画作成 |
+| | `verify.md` | 検証 |
+| | `code-review.md` | コードレビュー |
+| | `refactor-clean.md` | リファクタリング |
+| Rules | `git-workflow.md` | Git運用ルール |
+| | `coding-style.md` | コーディングスタイル |
+| | `security.md` | セキュリティ |
+| Skills | `coding-standards/` | コーディング標準 |
+| | `verification-loop/` | 検証ワークフロー |
+| | `strategic-compact/` | コンテキスト管理 |
+| Contexts | `dev.md`, `research.md`, `review.md` | モード切替 |
 
-### Commands（コマンド）
+### 中級（intermediate）- 設定が必要
 
-`/command-name` で呼び出すコマンド定義。
+| カテゴリ | ファイル | 用途 | タイプ |
+|---------|----------|------|--------|
+| Agents | `architect.md` | アーキテクチャ設計 | general |
+| | `tdd-guide.md` | TDDガイド | general |
+| | `security-reviewer.md` | セキュリティレビュー | general |
+| | `e2e-runner.md` | E2Eテスト実行 | **web** |
+| Commands | `tdd.md`, `build-fix.md` 等 | 各種コマンド | general |
+| | `e2e.md` | E2Eテスト | **web** |
+| Rules | `testing.md`, `performance.md` 等 | ガイドライン | general |
+| | `patterns.md` | 共通パターン | **web** |
+| Skills | `tdd-workflow/`, `security-review/` | ワークフロー | general |
+| | `frontend-patterns/`, `backend-patterns/` | 開発パターン | **web** |
 
-| ファイル | 用途 |
-|----------|------|
-| `plan.md` | 計画作成 |
-| `code-review.md` | コードレビュー |
-| `tdd.md` | TDD 実行 |
-| `verify.md` | 検証 |
-| 他16件 | ... |
+### 上級（advanced）- カスタムセットアップ必要
 
-### Rules（ルール）
-
-常時適用されるガイドライン。
-
-| ファイル | 用途 |
-|----------|------|
-| `git-workflow.md` | Git運用ルール |
-| `coding-style.md` | コーディングスタイル |
-| `security.md` | セキュリティ |
-| `testing.md` | テスト |
-| 他4件 | ... |
-
-### Skills（スキル）
-
-`/skill-name` で呼び出すスキル定義。
-
-| ディレクトリ | 用途 |
-|-------------|------|
-| `coding-standards/` | コーディング標準 |
-| `verification-loop/` | 検証ワークフロー |
-| `tdd-workflow/` | TDD ワークフロー |
-| 他9件 | ... |
-
-### Contexts（コンテキスト）
-
-`--system-prompt` で起動モードを切り替え。
-
-| ファイル | 用途 |
-|----------|------|
-| `dev.md` | 開発モード |
-| `research.md` | 調査モード |
-| `review.md` | レビューモード |
+| カテゴリ | ファイル | 用途 |
+|---------|----------|------|
+| Commands | `instinct-*.md` (3件) | 学習システム |
+| | `eval.md`, `evolve.md`, `learn.md` | 評価・学習 |
+| | `skill-create.md`, `orchestrate.md` | 高度な機能 |
+| Skills | `continuous-learning/` (2件) | 継続学習 |
+| | `eval-harness/`, `iterative-retrieval/` | 評価・取得 |
+| | `project-guidelines-example/` | プロジェクト例 |
 
 ---
 
@@ -150,28 +175,31 @@ pnpm build
 
 ---
 
-## 難易度別ガイド
+## 推奨ワークフロー
 
-全てのテンプレートを一度に適用する必要はありません。
+### Step 1: 最小構成で始める
 
-### 初級（まず試すべき）
+```bash
+./scripts/deploy-to-project.sh /path/to/project --preset minimal
+```
 
-- `contexts/` - 開発/レビューモード切り替え
-- `rules/git-workflow.md`, `rules/coding-style.md`, `rules/security.md`
-- `agents/planner.md`, `agents/code-reviewer.md`
+### Step 2: 慣れてきたら標準構成へ
 
-### 中級（慣れてきたら）
+```bash
+./scripts/deploy-to-project.sh /path/to/project --preset standard --force
+```
 
-- `rules/` 全て
-- `agents/` 全て
-- `commands/plan.md`, `commands/verify.md`, `commands/code-review.md`
+### Step 3: Web開発なら Web を追加
 
-### 上級（フル活用）
+```bash
+./scripts/deploy-to-project.sh /path/to/project --preset standard-web --force
+```
 
-- `skills/` 全て
-- `commands/` 全て
+### Step 4: フル活用
 
-詳細は [テンプレート分類レポート](../.ai/tasks/records/20260128193500-template-classification.md) を参照。
+```bash
+./scripts/deploy-to-project.sh /path/to/project --preset full --force
+```
 
 ---
 
