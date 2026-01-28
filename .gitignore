@@ -1,2 +1,8 @@
 !CLAUDE.md
 /**/CLAUDE.md
+
+# 翻訳作業ディレクトリ
+# - source/: 参照元リポジトリのクローン（再取得可能なため除外）
+# - translated/: 翻訳済みファイル（追跡する）
+# - VERSION.md: バージョン管理情報（追跡する）
+.work/source/
