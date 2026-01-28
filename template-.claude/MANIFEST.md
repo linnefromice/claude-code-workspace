@@ -100,6 +100,15 @@
 | `iterative-retrieval/` | advanced | general | 反復取得 |
 | `project-guidelines-example/` | advanced | general | プロジェクトガイドライン例 |
 
+### カスタムサンプル（custom-samples/）
+
+以下はプロジェクト固有のカスタマイズ用サンプルです。デプロイ対象外ですが、手動でコピーして使用できます。
+
+| ディレクトリ | 説明 |
+|-------------|------|
+| `custom-samples/adapt-external-docs/` | 外部ドキュメントをプロジェクト形式に適合 |
+| `custom-samples/merge-reference-docs/` | 参考ドキュメントをマージして拡張 |
+
 ---
 
 ## Contexts

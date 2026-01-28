@@ -136,6 +136,18 @@ Focus: Implementation, coding, feature building
 
 ---
 
+## 高速化オプション
+
+翻訳を高速化したい場合は、並列翻訳プロンプトを使用できます：
+
+```
+do @prompts/parallel-translate-claude-templates.md
+```
+
+カテゴリ別エージェントが同時に翻訳を実行し、約3-4倍高速化します。
+
+---
+
 ## 完了後
 
 翻訳完了後、次のステップへ進んでください：

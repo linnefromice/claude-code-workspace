@@ -62,14 +62,31 @@ Claude Code テンプレート（エージェント、コマンド、ルール�
 **オプション:**
 
 ```bash
-# 特定のカテゴリのみ
-./scripts/deploy-to-project.sh /path/to/project --only agents,rules
+# プリセットを指定
+./scripts/deploy-to-project.sh /path/to/project --preset standard
 
 # ドライラン
 ./scripts/deploy-to-project.sh /path/to/project --dry-run
 ```
 
 → [詳細ドキュメント](./docs/02-project-setup-templates.md)
+
+## [1-C] カスタムスキル追加（オプション）
+
+プロジェクト固有のスキルを追加します。
+
+```bash
+# 全てのカスタムスキルをデプロイ
+./scripts/deploy-custom-skills.sh /path/to/your/project --all
+
+# 対話モードで選択
+./scripts/deploy-custom-skills.sh /path/to/your/project -i
+
+# 特定のスキルのみ
+./scripts/deploy-custom-skills.sh /path/to/your/project --skill adapt-external-docs
+```
+
+→ [詳細ドキュメント](./docs/04-custom-skills.md)
 
 ---
 

@@ -146,6 +146,17 @@ cat .work/VERSION.md
 do @prompts/parallel-translate-claude-templates.md
 ```
 
+### カテゴリ別翻訳エージェント
+
+| エージェント | 対象 | 特徴 |
+|-------------|------|------|
+| `agents-translator` | エージェント定義 | 役割・責務の翻訳に特化 |
+| `commands-translator` | コマンド定義 | 使用方法・引数説明に特化 |
+| `rules-translator` | ルール定義 | ガイドライン・禁止事項に特化 |
+| `skills-translator` | スキル定義 | ワークフロー・チェックリストに特化 |
+| `contexts-translator` | コンテキスト定義 | モード・振る舞いに特化 |
+
+各エージェントは `prompts/translators/` に定義されています。
 5つのエージェントが同時に翻訳を実行し、約3-4倍高速化します。
 
 ---
@@ -155,10 +166,11 @@ do @prompts/parallel-translate-claude-templates.md
 | ファイル | 用途 |
 |----------|------|
 | `prompts/translate-to-ja.md` | 翻訳ガイドライン |
-| `prompts/collect-and-translate-claude-templates.md` | 翻訳プロセス |
+| `prompts/collect-and-translate-claude-templates.md` | 翻訳プロセス（逐次） |
+| `prompts/parallel-translate-claude-templates.md` | 翻訳プロセス（並列） |
+| `prompts/translators/*.md` | カテゴリ別翻訳エージェント |
 | `prompts/generalize-claude-templates.md` | 汎用化プロセス |
 | `prompts/diff-translate-claude-templates.md` | 差分翻訳プロセス |
-| `prompts/parallel-translate-claude-templates.md` | 並列翻訳プロセス |
 | `scripts/setup-templates.sh` | ソース取得・準備 |
 | `scripts/deploy-templates.sh` | テンプレート配置 |
 | `.work/VERSION.md` | バージョン管理 |
