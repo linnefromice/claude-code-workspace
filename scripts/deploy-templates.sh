@@ -48,8 +48,34 @@ copy_and_rename() {
 copy_and_rename "${WORK_DIR}/translated/agents" "${TEMPLATE_DIR}/agents"
 copy_and_rename "${WORK_DIR}/translated/commands" "${TEMPLATE_DIR}/commands"
 copy_and_rename "${WORK_DIR}/translated/rules" "${TEMPLATE_DIR}/rules"
-copy_and_rename "${WORK_DIR}/translated/skills" "${TEMPLATE_DIR}/skills"
 copy_and_rename "${WORK_DIR}/translated/contexts" "${TEMPLATE_DIR}/contexts"
+
+# Skills は特別な処理（サブディレクトリ構造）
+echo "  skills:"
+skill_count=0
+shopt -s nullglob
+for skill_dir in "${WORK_DIR}/translated/skills"/*/; do
+    if [ -d "$skill_dir" ]; then
+        skill_name=$(basename "$skill_dir")
+        mkdir -p "${TEMPLATE_DIR}/skills/${skill_name}"
+
+        # SKILL.ja.md を SKILL.md にリネームしてコピー
+        if [ -f "${skill_dir}/SKILL.ja.md" ]; then
+            cp "${skill_dir}/SKILL.ja.md" "${TEMPLATE_DIR}/skills/${skill_name}/SKILL.md"
+            skill_count=$((skill_count + 1))
+        fi
+
+        # その他のファイルもコピー（あれば）
+        for f in "${skill_dir}"/*.ja.md; do
+            if [ -f "$f" ] && [ "$(basename "$f")" != "SKILL.ja.md" ]; then
+                local basename=$(basename "$f" .ja.md)
+                cp "$f" "${TEMPLATE_DIR}/skills/${skill_name}/${basename}.md"
+            fi
+        done
+    fi
+done
+shopt -u nullglob
+echo "    ${skill_count} skill directories"
 
 # README のコピー
 if [ -f "${WORK_DIR}/translated/README.ja.md" ]; then
