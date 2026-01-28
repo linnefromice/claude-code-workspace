@@ -41,8 +41,9 @@ rm -f .work/translated/commands/go-*.ja.md
 rm -f .work/translated/skills/golang-*.ja.md
 
 # DB固有
-rm -f .work/translated/skills/clickhouse-*.ja.md
-rm -f .work/translated/skills/postgres-*.ja.md
+rm -f .work/translated/agents/database-reviewer.ja.md
+rm -rf .work/translated/skills/clickhouse-*
+rm -rf .work/translated/skills/postgres-*
 ```
 
 ### 2. プロジェクト固有の記述を置換
@@ -141,7 +142,7 @@ ls .work/translated/contexts/ | wc -l
 
 汎用化完了時に確認：
 
-- [ ] Go/DB固有ファイルが削除されている
+- [ ] Go/DB固有ファイルが削除されている（go-*, database-reviewer, clickhouse-*, postgres-*）
 - [ ] 特定のパッケージ名が除去/置換されている
 - [ ] 固有のファイルパスがプレースホルダーになっている
 - [ ] コマンドが `npm` に統一されている
