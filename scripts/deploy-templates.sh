@@ -33,13 +33,15 @@ copy_and_rename() {
     local dest_dir=$2
     local count=0
 
-    for f in "${src_dir}"/*.ja.md 2>/dev/null; do
+    shopt -s nullglob
+    for f in "${src_dir}"/*.ja.md; do
         if [ -f "$f" ]; then
             local basename=$(basename "$f" .ja.md)
             cp "$f" "${dest_dir}/${basename}.md"
-            ((count++))
+            count=$((count + 1))
         fi
     done
+    shopt -u nullglob
     echo "  ${dest_dir##*/}: ${count} files"
 }
 
@@ -70,4 +72,4 @@ echo ""
 echo "次のステップ:"
 echo "  1. 配置されたファイルを確認・調整"
 echo "  2. 不要なファイル（Go固有等）を削除"
-echo "  3. git add && git commit"
+echo "  3. git add template-.claude/ && git commit"

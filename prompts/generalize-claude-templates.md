@@ -1,183 +1,87 @@
-# Claude Code テンプレート汎用化プロンプト
+# Claude Code テンプレート 汎用化プロンプト
 
 ## 概要
 
-日本語訳済みの Claude Code 設定ファイルから、プロジェクト固有の記述を除去し、汎用テンプレートとして利用可能な形式に変換する。
+`.work/translated/` にある日本語訳済みファイルから、プロジェクト固有の記述を除去し、汎用テンプレートとして使用可能な形式に変換する。
+
+**前提条件:** `do @prompts/collect-and-translate-claude-templates.md` が完了していること
 
 ---
 
-## 入力
+## ディレクトリ構成
 
-日本語訳済みファイル（`*.ja.md`）
-
-## 出力
-
-汎用化されたテンプレートファイル
+```
+.work/translated/     # 入力 & 出力（その場で編集）
+├── agents/*.ja.md
+├── commands/*.ja.md
+├── rules/*.ja.md
+├── skills/*.ja.md
+└── contexts/*.ja.md
+        ↓
+template-.claude/     # 最終配置先（deploy-templates.sh で配置）
+├── agents/*.md
+├── commands/*.md
+├── rules/*.md
+├── skills/*.md
+└── contexts/*.md
+```
 
 ---
 
-## 汎用化ルール
+## 汎用化の手順
 
-### 1. 除外対象ファイル（言語/フレームワーク固有）
+### 1. 除外対象ファイルの削除
 
-以下のファイルは汎用テンプレートから**除外**:
+以下は言語/DB固有のため、`.work/translated/` から削除してください：
 
-| カテゴリ | ファイル | 理由 |
-|----------|----------|------|
-| Agents | `go-*.ja.md` | Go言語固有 |
-| Commands | `go-*.ja.md` | Go言語固有 |
-| Skills | `golang-*.ja.md` | Go言語固有 |
-| Skills | `clickhouse-io.ja.md` | DB固有 |
-| Skills | `postgres-patterns.ja.md` | DB固有 |
+```bash
+# Go言語固有
+rm -f .work/translated/agents/go-*.ja.md
+rm -f .work/translated/commands/go-*.ja.md
+rm -f .work/translated/skills/golang-*.ja.md
 
-### 2. 置換ルール
+# DB固有
+rm -f .work/translated/skills/clickhouse-*.ja.md
+rm -f .work/translated/skills/postgres-*.ja.md
+```
+
+### 2. プロジェクト固有の記述を置換
+
+各ファイルを読み込み、以下の置換ルールを適用してください：
 
 | 元の記述 | 汎用化後 |
 |----------|----------|
-| `pnpm run ...` | `npm run ...` または `{パッケージマネージャー} run ...` |
-| `@dipsy/ui`, `@dipsy/api` 等 | `@your-org/ui`, `@your-org/api` または削除 |
-| `apps/admin/`, `apps/sponsor/` | `apps/{app-name}/` |
-| `docs/specs/SPONSOR.md` | `docs/specs/{機能名}.md` |
-| 固有のポート番号 | `{PORT}` または削除 |
-| 固有のドメイン/URL | `example.com` または `{YOUR_DOMAIN}` |
+| `pnpm run ...` | `npm run ...` |
+| `pnpm install` | `npm install` |
+| 特定のパッケージ名（`@dipsy/ui` 等） | `@your-org/...` または削除 |
+| 特定のファイルパス（`docs/specs/SPONSOR.md` 等） | `docs/specs/{機能名}.md` |
+| 特定のポート番号 | 削除または `{PORT}` |
+| 特定のドメイン/URL | `example.com` または削除 |
 
-### 3. セクションの調整
+### 3. プレースホルダーの追加
 
-#### 参照ドキュメントセクション
-
-```markdown
-# Before（プロジェクト固有）
-| ドキュメント | パス |
-|--------------|------|
-| 機能仕様書 | `docs/specs/SPONSOR.md` |
-| RSCパターン | `.claude/skills/rsc-patterns/SKILL.md` |
-
-# After（汎用化）
-| ドキュメント | パス |
-|--------------|------|
-| 機能仕様書 | `docs/specs/{機能名}.md` |
-| プロジェクトスキル | `.claude/skills/{skill-name}/SKILL.md` |
-```
-
-#### プロジェクト構成セクション
+カスタマイズが必要な箇所にはコメントを追加：
 
 ```markdown
-# Before（プロジェクト固有）
-dipsy-portal-web/
-├── apps/
-│   ├── admin/     # Admin Portal (Next.js 16, Port 3000)
-│   └── sponsor/   # Sponsor Portal (Next.js 16, Port 3001)
-
-# After（汎用化）
-{project-name}/
-├── apps/
-│   └── {app-name}/   # アプリケーション
-├── packages/
-│   └── {package-name}/ # 共有パッケージ
+<!-- CUSTOMIZE: プロジェクトに合わせて変更してください -->
 ```
 
-### 4. フレームワーク固有の記述
-
-以下は「例」として残すか、コメントで補足:
-
-- Next.js App Router の記述 → `// Next.js の場合` とコメント追加
-- React Server Components → フレームワーク非依存の説明に書き換え
-- WorkOS AuthKit → `// 認証プロバイダーの例` とコメント追加
-
----
-
-## 実行手順
-
-### Step 1: 対象ファイルの選別
+### 4. 汎用化結果の確認
 
 ```bash
-cd translated
-
-# 除外対象を確認
-ls agents/go-*.ja.md 2>/dev/null
-ls commands/go-*.ja.md 2>/dev/null
-ls skills/golang-*.ja.md 2>/dev/null
-ls skills/clickhouse-*.ja.md 2>/dev/null
-ls skills/postgres-*.ja.md 2>/dev/null
-
-# 汎用化対象をリスト
-find . -name "*.ja.md" | grep -v "go-" | grep -v "golang-" | grep -v "clickhouse-" | grep -v "postgres-"
-```
-
-### Step 2: 汎用化の実行
-
-以下のプロンプトを Claude Code に入力:
-
-```
-以下のファイルを汎用テンプレートとして利用できるよう修正してください。
-
-修正ルール:
-1. プロジェクト固有のパス・名前をプレースホルダーに置換
-2. 特定のフレームワーク/DBへの依存を軽減
-3. 日本語のコメントで「カスタマイズポイント」を明示
-
-対象ファイル:
-@{ファイルパス}
-```
-
-### Step 3: 出力先への配置
-
-```bash
-# 汎用化済みファイルをテンプレートディレクトリに配置
-mkdir -p ../setup-claude-code-config/{agents,commands,rules,skills,contexts}
-
-# .ja.md を .md にリネームしてコピー（または ja サフィックスを維持）
-for f in agents/*.ja.md; do
-  cp "$f" "../setup-claude-code-config/agents/$(basename "$f" .ja.md).md"
-done
-# 他のディレクトリも同様...
+# 残っているファイル数を確認
+ls .work/translated/agents/ | wc -l
+ls .work/translated/commands/ | wc -l
+ls .work/translated/rules/ | wc -l
+ls .work/translated/skills/ | wc -l
+ls .work/translated/contexts/ | wc -l
 ```
 
 ---
 
-## 汎用化チェックリスト
+## 汎用化の優先度
 
-各ファイルについて以下を確認:
-
-- [ ] プロジェクト固有のパッケージ名が除去/置換されている
-- [ ] 固有のファイルパスがプレースホルダーになっている
-- [ ] 特定のフレームワークへの依存が明示されている（またはコメント化）
-- [ ] コマンド例が汎用的になっている（`pnpm` → `npm` または注記）
-- [ ] 固有のドメイン/URLが除去されている
-- [ ] カスタマイズポイントがコメントで明示されている
-
----
-
-## カスタマイズポイントの記法
-
-汎用テンプレートでは、ユーザーがカスタマイズすべき箇所を以下の形式で明示:
-
-```markdown
-<!-- CUSTOMIZE: プロジェクト固有の設定に置き換えてください -->
-
-| 項目 | 値 |
-|------|-----|
-| パッケージマネージャー | `npm` / `yarn` / `pnpm` |
-| UIライブラリ | `@your-org/ui` |
-```
-
-または frontmatter で:
-
-```yaml
----
-name: template-name
-description: "テンプレートの説明"
-# CUSTOMIZE: 以下をプロジェクトに合わせて変更
-# tools: Read, Write, Edit, Bash, Grep, Glob
-# model: opus
----
-```
-
----
-
-## 優先度別の汎用化対象
-
-### 高優先度（必須）
+### 高優先度（必須で汎用化）
 
 | ファイル | 理由 |
 |----------|------|
@@ -194,9 +98,7 @@ description: "テンプレートの説明"
 |----------|------|
 | `rules/coding-style.ja.md` | スタイルガイドは有用 |
 | `rules/security.ja.md` | セキュリティは重要 |
-| `rules/testing.ja.md` | テスト指針は有用 |
 | `agents/refactor-cleaner.ja.md` | リファクタリングは汎用的 |
-| `contexts/research.ja.md` | 調査モードは有用 |
 
 ### 低優先度（オプション）
 
@@ -207,9 +109,52 @@ description: "テンプレートの説明"
 
 ---
 
-## 次のステップ
+## 汎用化例
 
-汎用化完了後:
-1. `setup-claude-code-config/` に配置
-2. `setup.sh` スクリプトでインストール可能にする
-3. `README.md` で使い方を説明
+### Before（プロジェクト固有）
+
+```markdown
+## 参照すべきドキュメント
+
+| ドキュメント | パス |
+|--------------|------|
+| 機能仕様書 | `docs/specs/SPONSOR.md` |
+| UIコンポーネント | `@dipsy/ui` |
+```
+
+### After（汎用化後）
+
+```markdown
+## 参照すべきドキュメント
+
+<!-- CUSTOMIZE: プロジェクトのドキュメントパスに置き換えてください -->
+
+| ドキュメント | パス |
+|--------------|------|
+| 機能仕様書 | `docs/specs/{機能名}.md` |
+| UIコンポーネント | `@your-org/ui` |
+```
+
+---
+
+## チェックリスト
+
+汎用化完了時に確認：
+
+- [ ] Go/DB固有ファイルが削除されている
+- [ ] 特定のパッケージ名が除去/置換されている
+- [ ] 固有のファイルパスがプレースホルダーになっている
+- [ ] コマンドが `npm` に統一されている
+- [ ] カスタマイズポイントがコメントで明示されている
+
+---
+
+## 完了後
+
+汎用化完了後、配置スクリプトを実行してください：
+
+```bash
+./scripts/deploy-templates.sh
+```
+
+これにより `.work/translated/` の内容が `template-.claude/` に配置されます（`.ja.md` → `.md` にリネーム）。
