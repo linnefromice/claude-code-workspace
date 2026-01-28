@@ -9,7 +9,7 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WORKSPACE_DIR="$(dirname "$SCRIPT_DIR")"
 WORK_DIR="${WORKSPACE_DIR}/.work"
-TEMPLATE_DIR="${WORKSPACE_DIR}/setup-claude-code-config"
+TEMPLATE_DIR="${WORKSPACE_DIR}/template-.claude"
 
 echo "=== テンプレート配置 ==="
 echo ""
