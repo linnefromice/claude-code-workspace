@@ -31,7 +31,7 @@ usage() {
     echo "  --type <types>       タイプでフィルタ（カンマ区切り）"
     echo "                       general, web"
     echo "  --interactive, -i    対話モードで選択"
-    echo "  --force              既存ファイルを上書き"
+    echo "  --force              既存ファイルを強制上書き（-migrated なし）"
     echo "  --dry-run            実際にはコピーしない（確認のみ）"
     echo "  -h, --help           このヘルプを表示"
     echo ""
@@ -199,17 +199,42 @@ if [ "$DRY_RUN" = true ]; then
     echo ""
 fi
 
-# 既存チェック
-if [ -d "$TARGET_CLAUDE_DIR" ] && [ "$FORCE" = false ] && [ "$DRY_RUN" = false ]; then
-    echo "警告: ${TARGET_CLAUDE_DIR} は既に存在します"
-    echo ""
-    read -p "上書きしますか？ (y/N): " confirm
-    if [ "$confirm" != "y" ] && [ "$confirm" != "Y" ]; then
-        echo "キャンセルしました"
-        exit 0
+# 単一ファイルのコピー（衝突処理付き）
+# 戻り値: 0=コピー成功, 1=スキップ, 2=migrated としてコピー
+SKIP_COUNT=0
+MIGRATED_COUNT=0
+
+copy_single_file() {
+    local src_file=$1
+    local dest_dir=$2
+    local filename=$(basename "$src_file")
+    local dest_file="${dest_dir}/${filename}"
+
+    if [ -f "$dest_file" ]; then
+        if [ "$FORCE" = true ]; then
+            cp "$src_file" "$dest_file"
+            return 0
+        fi
+        # 拡張子の前に -migrated を付与
+        local base="${filename%.*}"
+        local ext="${filename##*.}"
+        local migrated_file="${dest_dir}/${base}-migrated.${ext}"
+
+        if [ -f "$migrated_file" ]; then
+            echo "    [スキップ] ${filename} (既存 + migrated 両方存在)"
+            SKIP_COUNT=$((SKIP_COUNT + 1))
+            return 1
+        fi
+
+        cp "$src_file" "$migrated_file"
+        echo "    [migrated] ${filename} → ${base}-migrated.${ext}"
+        MIGRATED_COUNT=$((MIGRATED_COUNT + 1))
+        return 0
     fi
-    echo ""
-fi
+
+    cp "$src_file" "$dest_file"
+    return 0
+}
 
 # MANIFESTからファイルリストを取得
 get_files_for_category() {
@@ -300,7 +325,7 @@ copy_files() {
                     mkdir -p "$dest_skill_dir"
                     for f in "$src_skill_dir"/*.md; do
                         if [ -f "$f" ] && [ "$(basename "$f")" != "CLAUDE.md" ]; then
-                            cp "$f" "$dest_skill_dir/"
+                            copy_single_file "$f" "$dest_skill_dir"
                         fi
                     done
                 fi
@@ -311,7 +336,7 @@ copy_files() {
             local src_file="${src_dir}/${filename}"
             if [ -f "$src_file" ]; then
                 if [ "$DRY_RUN" = false ]; then
-                    cp "$src_file" "$dest_dir/"
+                    copy_single_file "$src_file" "$dest_dir"
                 fi
                 count=$((count + 1))
             fi
@@ -349,6 +374,12 @@ if [ "$DRY_RUN" = false ]; then
 
     total_count=$(find "$TARGET_CLAUDE_DIR" -name "*.md" -type f 2>/dev/null | wc -l | tr -d ' ')
     echo "合計: ${total_count} files"
+    if [ "$MIGRATED_COUNT" -gt 0 ]; then
+        echo "  -migrated 付与: ${MIGRATED_COUNT} files"
+    fi
+    if [ "$SKIP_COUNT" -gt 0 ]; then
+        echo "  スキップ: ${SKIP_COUNT} files"
+    fi
 else
     echo "=== ドライラン完了 ==="
     echo ""
