@@ -1,13 +1,20 @@
 ---
 name: evolve
 description: 関連するインスティンクトをスキル、コマンド、エージェントにクラスタリング
-command: /evolve
-implementation: python3 ~/.claude/skills/continuous-learning-v2/scripts/instinct-cli.py evolve
+command: true
 ---
 
 # Evolveコマンド
 
 ## 実装
+
+プラグインルートパスを使用してインスティンクトCLIを実行:
+
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/skills/continuous-learning-v2/scripts/instinct-cli.py" evolve [--generate]
+```
+
+`CLAUDE_PLUGIN_ROOT` が設定されていない場合（手動インストール）:
 
 ```bash
 python3 ~/.claude/skills/continuous-learning-v2/scripts/instinct-cli.py evolve [--generate]

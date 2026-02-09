@@ -14,17 +14,10 @@
 
 ## シークレット管理
 
-```typescript
-// 絶対にダメ: ハードコードされたシークレット
-const apiKey = "sk-proj-xxxxx"
-
-// 常にこうする: 環境変数
-const apiKey = process.env.OPENAI_API_KEY
-
-if (!apiKey) {
-  throw new Error('OPENAI_API_KEY not configured')
-}
-```
+- シークレットをソースコードにハードコードしない
+- 常に環境変数またはシークレットマネージャーを使用する
+- 起動時に必要なシークレットが存在することをバリデートする
+- 漏洩した可能性のあるシークレットはローテーションする
 
 ## セキュリティ対応プロトコル
 

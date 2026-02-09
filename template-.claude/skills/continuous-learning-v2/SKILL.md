@@ -92,7 +92,32 @@ source: "session-observation"
 
 ### 1. 観察フックを有効化
 
-`~/.claude/settings.json`に追加:
+`~/.claude/settings.json`に追加。
+
+**プラグインとしてインストールした場合**（推奨）:
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [{
+      "matcher": "*",
+      "hooks": [{
+        "type": "command",
+        "command": "${CLAUDE_PLUGIN_ROOT}/skills/continuous-learning-v2/hooks/observe.sh pre"
+      }]
+    }],
+    "PostToolUse": [{
+      "matcher": "*",
+      "hooks": [{
+        "type": "command",
+        "command": "${CLAUDE_PLUGIN_ROOT}/skills/continuous-learning-v2/hooks/observe.sh post"
+      }]
+    }]
+  }
+}
+```
+
+**手動で `~/.claude/skills` にインストールした場合**:
 
 ```json
 {
@@ -117,18 +142,20 @@ source: "session-observation"
 
 ### 2. ディレクトリ構造を初期化
 
+Python CLIがこれらを自動的に作成しますが、手動で作成することも可能:
+
 ```bash
 mkdir -p ~/.claude/homunculus/{instincts/{personal,inherited},evolved/{agents,skills,commands}}
 touch ~/.claude/homunculus/observations.jsonl
 ```
 
-### 3. オブザーバーエージェントを実行（オプション）
-
-オブザーバーは観察を分析しながらバックグラウンドで実行可能:
+### 3. インスティンクトコマンドを使用
 
 ```bash
-# バックグラウンドオブザーバーを開始
-~/.claude/skills/continuous-learning-v2/agents/start-observer.sh
+/instinct-status     # 信頼度スコア付きで学習したインスティンクトを表示
+/evolve              # 関連インスティンクトをスキル/コマンドにクラスタリング
+/instinct-export     # 共有用にインスティンクトをエクスポート
+/instinct-import     # 他者からインスティンクトをインポート
 ```
 
 ## コマンド

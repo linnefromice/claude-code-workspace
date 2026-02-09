@@ -1,4 +1,6 @@
-# 共通パターン
+# TypeScript/JavaScript パターン
+
+> このファイルは [common/patterns.md](../common/patterns.md) をTypeScript/JavaScript固有の内容で拡張しています。
 
 ## APIレスポンス形式
 
@@ -41,15 +43,3 @@ interface Repository<T> {
   delete(id: string): Promise<void>
 }
 ```
-
-## スケルトンプロジェクト
-
-新機能を実装する際:
-1. 実績のあるスケルトンプロジェクトを検索する
-2. 並列エージェントでオプションを評価する:
-   - セキュリティ評価
-   - 拡張性分析
-   - 関連性スコアリング
-   - 実装計画
-3. 最も適合するものを基盤としてクローン
-4. 実績ある構造の中でイテレーションする

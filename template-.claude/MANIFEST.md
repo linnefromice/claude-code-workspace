@@ -65,21 +65,48 @@
 | `instinct-export.md` | advanced | general | インスティンクトエクスポート |
 | `instinct-import.md` | advanced | general | インスティンクトインポート |
 | `instinct-status.md` | advanced | general | インスティンクトステータス |
+| `multi-plan.md` | advanced | general | マルチモデル計画（Codex+Gemini+Claude） |
+| `multi-execute.md` | advanced | general | マルチモデル実行 |
+| `multi-backend.md` | advanced | general | マルチモデルバックエンド |
+| `multi-frontend.md` | advanced | general | マルチモデルフロントエンド |
+| `multi-workflow.md` | advanced | general | マルチモデルワークフロー |
+| `pm2.md` | advanced | general | PM2プロセス管理 |
+| `sessions.md` | advanced | general | セッション管理 |
 
 ---
 
 ## Rules
 
+v2 よりサブディレクトリ構造（`common/` + `typescript/`）に変更。
+
+### common/（共通ルール）
+
 | ファイル | レベル | タイプ | 説明 |
 |----------|--------|--------|------|
-| `git-workflow.md` | beginner | general | Git運用ルール |
-| `coding-style.md` | beginner | general | コーディングスタイル |
-| `security.md` | beginner | general | セキュリティ |
-| `agents.md` | intermediate | general | エージェント活用 |
-| `hooks.md` | intermediate | general | フック設定 |
-| `testing.md` | intermediate | general | テスト |
-| `performance.md` | intermediate | general | パフォーマンス |
-| `patterns.md` | intermediate | web | 共通パターン（React等） |
+| `common/git-workflow.md` | beginner | general | Git運用ルール |
+| `common/coding-style.md` | beginner | general | コーディングスタイル |
+| `common/security.md` | beginner | general | セキュリティ |
+| `common/agents.md` | intermediate | general | エージェント活用 |
+| `common/hooks.md` | intermediate | general | フック設定 |
+| `common/testing.md` | intermediate | general | テスト |
+| `common/performance.md` | intermediate | general | パフォーマンス |
+| `common/patterns.md` | intermediate | general | 共通パターン |
+
+### typescript/（TypeScript固有ルール）
+
+| ファイル | レベル | タイプ | 説明 |
+|----------|--------|--------|------|
+| `typescript/coding-style.md` | intermediate | general | TypeScriptコーディングスタイル |
+| `typescript/hooks.md` | intermediate | general | TypeScriptフック設定 |
+| `typescript/testing.md` | intermediate | general | TypeScriptテスト |
+| `typescript/security.md` | intermediate | general | TypeScriptセキュリティ |
+| `typescript/patterns.md` | intermediate | web | TypeScriptパターン（React/Next.js等） |
+
+### その他
+
+| ファイル | レベル | タイプ | 説明 |
+|----------|--------|--------|------|
+| `README.md` | — | — | ルールディレクトリの説明 |
 
 ---
 
@@ -99,6 +126,8 @@
 | `eval-harness/` | advanced | general | 評価ハーネス |
 | `iterative-retrieval/` | advanced | general | 反復取得 |
 | `project-guidelines-example/` | advanced | general | プロジェクトガイドライン例 |
+| `configure-ecc/` | advanced | general | Everything Claude Code設定 |
+| `nutrient-document-processing/` | advanced | general | Nutrientドキュメント処理 |
 
 ### カスタムサンプル（custom-samples/）
 
@@ -127,25 +156,25 @@
 
 - レベル: beginner のみ
 - タイプ: general のみ
-- ファイル数: 約15
+- ファイル数: 約16
 
 ### standard（標準構成）
 
 - レベル: beginner + intermediate
 - タイプ: general のみ
-- ファイル数: 約35
+- ファイル数: 約37
 
 ### standard-web（標準構成 + Web）
 
 - レベル: beginner + intermediate
 - タイプ: general + web
-- ファイル数: 約40
+- ファイル数: 約42
 
 ### full（フル構成）
 
 - レベル: 全て
 - タイプ: general + web
-- ファイル数: 約52
+- ファイル数: 約67
 
 ---
 
@@ -153,4 +182,5 @@
 
 | 日付 | 内容 |
 |------|------|
+| 2026-02-09 | v2: Rules をサブディレクトリ構造に変更、Commands×7・Skills×2 追加、ファイル数 52→67 |
 | 2026-01-28 | 初回作成 |

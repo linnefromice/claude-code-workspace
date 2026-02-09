@@ -1,8 +1,7 @@
 ---
 name: instinct-status
 description: 信頼度レベルとともにすべての学習したインスティンクトを表示
-command: /instinct-status
-implementation: python3 ~/.claude/skills/continuous-learning-v2/scripts/instinct-cli.py status
+command: true
 ---
 
 # インスティンクトステータスコマンド
@@ -10,6 +9,14 @@ implementation: python3 ~/.claude/skills/continuous-learning-v2/scripts/instinct
 信頼度スコアとともにすべての学習したインスティンクトをドメイン別にグループ化して表示。
 
 ## 実装
+
+プラグインルートパスを使用してインスティンクトCLIを実行:
+
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/skills/continuous-learning-v2/scripts/instinct-cli.py" status
+```
+
+`CLAUDE_PLUGIN_ROOT` が設定されていない場合（手動インストール）:
 
 ```bash
 python3 ~/.claude/skills/continuous-learning-v2/scripts/instinct-cli.py status
