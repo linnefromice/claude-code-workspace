@@ -36,10 +36,10 @@ usage() {
     echo "  -h, --help           このヘルプを表示"
     echo ""
     echo "プリセット:"
-    echo "  minimal       初級 + 汎用のみ（約15ファイル）"
-    echo "  standard      初級・中級 + 汎用（約35ファイル）"
-    echo "  standard-web  初級・中級 + 汎用・Web（約40ファイル）"
-    echo "  full          全て（約52ファイル）"
+    echo "  minimal       初級 + 汎用のみ（約16ファイル）"
+    echo "  standard      初級・中級 + 汎用（約37ファイル）"
+    echo "  standard-web  初級・中級 + 汎用・Web（約42ファイル）"
+    echo "  full          全て（約67ファイル）"
     echo ""
     echo "例:"
     echo "  $0 /path/to/project --preset minimal"
@@ -332,11 +332,18 @@ copy_files() {
                 count=$((count + 1))
             fi
         else
-            # その他はファイル
+            # その他はファイル（サブディレクトリパスに対応）
             local src_file="${src_dir}/${filename}"
             if [ -f "$src_file" ]; then
+                local file_dest_dir="$dest_dir"
+                local subdir
+                subdir=$(dirname "$filename")
+                if [ "$subdir" != "." ]; then
+                    file_dest_dir="${dest_dir}/${subdir}"
+                fi
                 if [ "$DRY_RUN" = false ]; then
-                    copy_single_file "$src_file" "$dest_dir"
+                    mkdir -p "$file_dest_dir"
+                    copy_single_file "$src_file" "$file_dest_dir"
                 fi
                 count=$((count + 1))
             fi
