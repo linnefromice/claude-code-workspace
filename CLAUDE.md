@@ -58,6 +58,8 @@ claude-code-workspace/
 
 ### [2] テンプレート更新（メンテナー向け）
 
+#### 初回セットアップ
+
 ```bash
 # 1. 準備
 ./scripts/setup-templates.sh
@@ -71,6 +73,21 @@ do @prompts/parallel-translate-claude-templates.md
 do @prompts/generalize-claude-templates.md
 
 # 4. 配置
+./scripts/deploy-templates.sh
+```
+
+#### 差分更新（ソースリポジトリ更新時）
+
+```bash
+# 1. 変更確認
+cd .work/source && git fetch origin
+git diff HEAD origin/main --name-only -- agents/ commands/ rules/ skills/ contexts/
+
+# 2. 差分翻訳（変更ファイルのみ翻訳・更新）
+do @prompts/diff-translate-claude-templates.md
+
+# 3-4. 汎用化 & 配置（初回と同じ）
+do @prompts/generalize-claude-templates.md
 ./scripts/deploy-templates.sh
 ```
 
@@ -106,6 +123,7 @@ do @prompts/generalize-claude-templates.md
 | `template-.claude/MANIFEST.md` | テンプレート分類情報 |
 | `.work/VERSION.md` | バージョン追跡 |
 | `prompts/translators/*.md` | カテゴリ別翻訳エージェント |
+| `prompts/diff-translate-claude-templates.md` | 差分翻訳プロセス |
 
 ---
 
