@@ -52,7 +52,13 @@ claude-code-workspace/
 # [1-B] テンプレート適用
 ./scripts/deploy-to-project.sh /path/to/project --preset standard
 
-# [1-C] カスタムスキル追加
+# [1-C] アドオンのみ追加（既存プロジェクト向け）
+./scripts/deploy-to-project.sh /path/to/project --addon learning --addon-only
+
+# [1-D] デプロイ状態確認
+./scripts/deploy-to-project.sh /path/to/project --status
+
+# [1-E] カスタムスキル追加
 ./scripts/deploy-custom-skills.sh /path/to/project --all
 ```
 

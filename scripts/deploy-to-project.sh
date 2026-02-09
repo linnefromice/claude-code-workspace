@@ -18,6 +18,8 @@ PRESET=""
 LEVEL=""
 TYPE=""
 ADDON=""
+ADDON_ONLY=false
+SHOW_STATUS=false
 INTERACTIVE=false
 
 # 使用方法
@@ -30,6 +32,8 @@ usage() {
     echo "                       standard-learning, standard-multi, full"
     echo "  --addon <name>       アドオンを追加（複数回指定可）"
     echo "                       learning, multi-model, infra"
+    echo "  --addon-only         アドオンのみデプロイ（ベースファイルをスキップ）"
+    echo "  --status             デプロイ状態を表示"
     echo "  --level <levels>     レベルでフィルタ（カンマ区切り）"
     echo "                       beginner, intermediate, advanced"
     echo "  --type <types>       タイプでフィルタ（カンマ区切り）"
@@ -58,6 +62,9 @@ usage() {
     echo "  $0 /path/to/project --preset standard --addon learning"
     echo "  $0 /path/to/project --preset standard --addon learning --addon multi-model"
     echo "  $0 /path/to/project --preset standard-learning"
+    echo "  $0 /path/to/project --addon learning --addon-only"
+    echo "  $0 /path/to/project --addon learning --addon multi-model --addon-only"
+    echo "  $0 /path/to/project --status"
     echo "  $0 /path/to/project --level beginner,intermediate --type general"
     echo "  $0 /path/to/project -i"
     exit 1
@@ -86,6 +93,14 @@ while [[ $# -gt 0 ]]; do
                 ADDON="$2"
             fi
             shift 2
+            ;;
+        --addon-only)
+            ADDON_ONLY=true
+            shift
+            ;;
+        --status)
+            SHOW_STATUS=true
+            shift
             ;;
         --interactive|-i)
             INTERACTIVE=true
@@ -133,6 +148,105 @@ fi
 TARGET_DIR="$(cd "$TARGET_DIR" && pwd)"
 TARGET_CLAUDE_DIR="${TARGET_DIR}/.claude"
 
+# デプロイ状態を表示
+show_status() {
+    local state_file="${TARGET_CLAUDE_DIR}/.deploy-state"
+
+    if [ ! -f "$state_file" ]; then
+        echo "デプロイ状態ファイルが見つかりません: ${state_file}"
+        echo ""
+        echo "このプロジェクトにはまだデプロイされていないか、"
+        echo "状態追跡導入前にデプロイされたプロジェクトです。"
+        exit 0
+    fi
+
+    echo "=== デプロイ状況 ==="
+    echo ""
+    echo "プロジェクト: ${TARGET_DIR}"
+    echo ""
+
+    # デプロイ履歴を表示
+    local deploy_count=0
+    local current_section=""
+    local file_count=0
+
+    while IFS= read -r line; do
+        if [[ "$line" =~ ^\[deploy:(.+)\]$ ]]; then
+            # 前のセクションのファイル数を出力
+            if [ "$current_section" = "files" ]; then
+                echo "  ファイル数: ${file_count}"
+                echo ""
+            fi
+            deploy_count=$((deploy_count + 1))
+            current_section="header"
+            echo "--- デプロイ #${deploy_count} (${BASH_REMATCH[1]}) ---"
+        elif [ "$current_section" = "header" ]; then
+            case "$line" in
+                preset=*) [ -n "${line#preset=}" ] && echo "  プリセット: ${line#preset=}" ;;
+                addons=*) [ -n "${line#addons=}" ] && echo "  アドオン: ${line#addons=}" ;;
+                addon_only=true) echo "  モード: addon-only" ;;
+                force=true) echo "  オプション: --force" ;;
+                files:)
+                    current_section="files"
+                    file_count=0
+                    ;;
+            esac
+        elif [ "$current_section" = "files" ]; then
+            if [ -n "$line" ] && [[ ! "$line" =~ ^\[|^# ]]; then
+                file_count=$((file_count + 1))
+            fi
+        fi
+    done < "$state_file"
+
+    # 最後のセクションのファイル数
+    if [ "$current_section" = "files" ]; then
+        echo "  ファイル数: ${file_count}"
+        echo ""
+    fi
+
+    # 合計ファイル数
+    local total
+    total=$(grep -v '^\[deploy:' "$state_file" | grep -v '^preset=' | grep -v '^level=' | \
+        grep -v '^type=' | grep -v '^addons=' | grep -v '^addon_only=' | \
+        grep -v '^force=' | grep -v '^files:' | grep -v '^#' | grep -v '^$' | \
+        sort -u | wc -l | tr -d ' ')
+    echo "デプロイ済みファイル合計（ユニーク）: ${total}"
+
+    exit 0
+}
+
+# 状態ファイルに書き込み
+write_state_file() {
+    local state_file="${TARGET_CLAUDE_DIR}/.deploy-state"
+    local timestamp
+    timestamp=$(date '+%Y-%m-%dT%H:%M:%S%z')
+
+    # 初回は header を書き込み
+    if [ ! -f "$state_file" ]; then
+        {
+            echo "# Claude Code Template Deploy State"
+            echo "# このファイルはデプロイ状態を追跡します。手動編集しないでください。"
+            echo "# version=1"
+        } > "$state_file"
+    fi
+
+    # デプロイエントリを追記
+    {
+        echo ""
+        echo "[deploy:${timestamp}]"
+        echo "preset=${PRESET}"
+        echo "level=${LEVEL}"
+        echo "type=${TYPE}"
+        echo "addons=${ADDON}"
+        echo "addon_only=${ADDON_ONLY}"
+        echo "force=${FORCE}"
+        echo "files:"
+        for f in "${DEPLOYED_FILES[@]}"; do
+            echo "$f"
+        done
+    } >> "$state_file"
+}
+
 # 対話モード
 if [ "$INTERACTIVE" = true ]; then
     echo "=== Claude Code テンプレート デプロイウィザード ==="
@@ -146,8 +260,9 @@ if [ "$INTERACTIVE" = true ]; then
     echo "  5) standard-multi    - 初級・中級 + マルチモデル"
     echo "  6) full              - 全て"
     echo "  7) custom            - カスタム選択"
+    echo "  8) addon-only        - 既存プロジェクトにアドオンのみ追加"
     echo ""
-    read -p "選択 [1-7]: " choice
+    read -p "選択 [1-8]: " choice
 
     case $choice in
         1) PRESET="minimal" ;;
@@ -156,6 +271,17 @@ if [ "$INTERACTIVE" = true ]; then
         4) PRESET="standard-learning" ;;
         5) PRESET="standard-multi" ;;
         6) PRESET="full" ;;
+        8)
+            ADDON_ONLY=true
+            echo ""
+            echo "追加するアドオンを選択（複数可、カンマ区切り）:"
+            echo "  learning, multi-model, infra"
+            read -p "アドオン: " ADDON
+            if [ -z "$ADDON" ]; then
+                echo "エラー: アドオンを指定してください"
+                exit 1
+            fi
+            ;;
         7)
             echo ""
             echo "レベルを選択（複数可、カンマ区切り）:"
@@ -221,6 +347,23 @@ case $PRESET in
         ;;
 esac
 
+# --status の早期終了
+if [ "$SHOW_STATUS" = true ]; then
+    show_status
+fi
+
+# --addon-only の検証
+if [ "$ADDON_ONLY" = true ] && [ -z "$ADDON" ]; then
+    echo "エラー: --addon-only を使用する場合は --addon を指定してください"
+    exit 1
+fi
+
+# addon-only モードでは level/type を空にする（ベースファイルを除外）
+if [ "$ADDON_ONLY" = true ]; then
+    LEVEL=""
+    TYPE=""
+fi
+
 echo "=== Claude Code テンプレートのデプロイ ==="
 echo ""
 echo "ソース: ${TEMPLATE_DIR}"
@@ -233,6 +376,9 @@ echo "レベル: ${LEVEL}"
 echo "タイプ: ${TYPE}"
 if [ -n "$ADDON" ]; then
     echo "アドオン: ${ADDON}"
+fi
+if [ "$ADDON_ONLY" = true ]; then
+    echo "モード: addon-only"
 fi
 echo ""
 
@@ -341,8 +487,16 @@ get_files_for_category() {
                 done
             fi
 
-            if [ "$level_match" = true ] && [ "$type_match" = true ] || [ "$addon_match" = true ]; then
-                files="$files $filename"
+            if [ "$ADDON_ONLY" = true ]; then
+                # addon-only: アドオンマッチのみ
+                if [ "$addon_match" = true ]; then
+                    files="$files $filename"
+                fi
+            else
+                # 通常: (level AND type) OR addon
+                if [ "$level_match" = true ] && [ "$type_match" = true ] || [ "$addon_match" = true ]; then
+                    files="$files $filename"
+                fi
             fi
         fi
     done < "$MANIFEST_FILE"
@@ -385,6 +539,7 @@ copy_files() {
                         fi
                     done
                 fi
+                DEPLOYED_FILES+=("${category_lower}/${skill_name}/")
                 count=$((count + 1))
             fi
         else
@@ -401,6 +556,7 @@ copy_files() {
                     mkdir -p "$file_dest_dir"
                     copy_single_file "$src_file" "$file_dest_dir"
                 fi
+                DEPLOYED_FILES+=("${category_lower}/${filename}")
                 count=$((count + 1))
             fi
         fi
@@ -412,6 +568,9 @@ copy_files() {
         echo "  [完了] ${category}: ${count} items"
     fi
 }
+
+# デプロイされたファイルの追跡
+DEPLOYED_FILES=()
 
 # メイン処理
 echo "[1/2] ディレクトリを準備中..."
@@ -427,6 +586,11 @@ copy_files "Rules"
 copy_files "Skills"
 copy_files "Contexts"
 echo ""
+
+# 状態ファイルの書き込み
+if [ "$DRY_RUN" = false ] && [ ${#DEPLOYED_FILES[@]} -gt 0 ]; then
+    write_state_file
+fi
 
 # 結果表示
 if [ "$DRY_RUN" = false ]; then

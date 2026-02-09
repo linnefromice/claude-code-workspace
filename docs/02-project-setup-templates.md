@@ -242,14 +242,14 @@ pnpm build
 ### Step 3: 必要なアドオンを追加
 
 ```bash
-# 自己学習・進化機能を追加
-./scripts/deploy-to-project.sh /path/to/project --preset standard --addon learning --force
+# 自己学習・進化機能を追加（アドオンのみ）
+./scripts/deploy-to-project.sh /path/to/project --addon learning --addon-only
 
-# マルチAI連携を追加
-./scripts/deploy-to-project.sh /path/to/project --preset standard --addon multi-model --force
+# マルチAI連携を追加（アドオンのみ）
+./scripts/deploy-to-project.sh /path/to/project --addon multi-model --addon-only
 
-# または複合プリセットを使用
-./scripts/deploy-to-project.sh /path/to/project --preset standard-learning --force
+# 複数アドオンを同時追加
+./scripts/deploy-to-project.sh /path/to/project --addon learning --addon multi-model --addon-only
 ```
 
 ### Step 4: Web開発なら Web を追加
@@ -265,6 +265,35 @@ pnpm build
 ```
 
 ---
+
+## アドオンの追加（既存プロジェクト）
+
+テンプレートが適用済みのプロジェクトにアドオンだけを追加できます。
+既存ファイルには影響しません。
+
+### アドオンのみ追加
+
+```bash
+# learning アドオンを追加
+./scripts/deploy-to-project.sh /path/to/project --addon learning --addon-only
+
+# 複数アドオンを同時追加
+./scripts/deploy-to-project.sh /path/to/project --addon learning --addon multi-model --addon-only
+
+# ドライランで確認
+./scripts/deploy-to-project.sh /path/to/project --addon learning --addon-only --dry-run
+```
+
+### デプロイ状態の確認
+
+```bash
+./scripts/deploy-to-project.sh /path/to/project --status
+```
+
+### 注意事項
+
+- `--addon-only` は `--addon` と組み合わせて使用します
+- 状態ファイル (`.claude/.deploy-state`) が自動作成されデプロイ履歴が記録されます
 
 ---
 
