@@ -47,8 +47,41 @@ copy_and_rename() {
 
 copy_and_rename "${WORK_DIR}/translated/agents" "${TEMPLATE_DIR}/agents"
 copy_and_rename "${WORK_DIR}/translated/commands" "${TEMPLATE_DIR}/commands"
-copy_and_rename "${WORK_DIR}/translated/rules" "${TEMPLATE_DIR}/rules"
 copy_and_rename "${WORK_DIR}/translated/contexts" "${TEMPLATE_DIR}/contexts"
+
+# Rules はサブディレクトリ構造（common/, typescript/ 等）に対応
+echo "  rules:"
+rules_count=0
+shopt -s nullglob
+# ルートレベルの .ja.md ファイル（README.ja.md 等）
+for f in "${WORK_DIR}/translated/rules"/*.ja.md; do
+    if [ -f "$f" ]; then
+        local_basename=$(basename "$f" .ja.md)
+        cp "$f" "${TEMPLATE_DIR}/rules/${local_basename}.md"
+        rules_count=$((rules_count + 1))
+    fi
+done
+# サブディレクトリ（common/, typescript/ 等）
+for rules_subdir in "${WORK_DIR}/translated/rules"/*/; do
+    if [ -d "$rules_subdir" ]; then
+        subdir_name=$(basename "$rules_subdir")
+        # CLAUDE.md のみのディレクトリはスキップ
+        ja_files=("${rules_subdir}"*.ja.md)
+        if [ ${#ja_files[@]} -eq 0 ]; then
+            continue
+        fi
+        mkdir -p "${TEMPLATE_DIR}/rules/${subdir_name}"
+        for f in "${rules_subdir}"*.ja.md; do
+            if [ -f "$f" ]; then
+                local_basename=$(basename "$f" .ja.md)
+                cp "$f" "${TEMPLATE_DIR}/rules/${subdir_name}/${local_basename}.md"
+                rules_count=$((rules_count + 1))
+            fi
+        done
+    fi
+done
+shopt -u nullglob
+echo "    ${rules_count} files"
 
 # Skills は特別な処理（サブディレクトリ構造）
 echo "  skills:"
