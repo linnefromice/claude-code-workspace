@@ -107,12 +107,14 @@ do @prompts/generalize-claude-templates.md
 
 ## プリセット
 
-| プリセット | レベル | タイプ | 用途 |
-|-----------|--------|--------|------|
-| `minimal` | beginner | general | 入門者向け |
-| `standard` | beginner + intermediate | general | 一般的なプロジェクト |
-| `standard-web` | beginner + intermediate | general + web | Web開発 |
-| `full` | 全て | 全て | フル活用 |
+| プリセット | レベル | タイプ | アドオン | 用途 |
+|-----------|--------|--------|---------|------|
+| `minimal` | beginner | general | - | 入門者向け |
+| `standard` | beginner + intermediate | general | - | 一般的なプロジェクト |
+| `standard-web` | beginner + intermediate | general + web | - | Web開発 |
+| `standard-learning` | beginner + intermediate | general | learning | 自己学習・進化 |
+| `standard-multi` | beginner + intermediate | general | multi-model | マルチAI連携 |
+| `full` | 全て | 全て | 全て | フル活用 |
 
 ---
 

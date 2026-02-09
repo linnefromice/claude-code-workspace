@@ -13,12 +13,14 @@
 
 ## プリセット
 
-| プリセット | レベル | タイプ | ファイル数 | 推奨用途 |
-|-----------|--------|--------|-----------|---------|
-| `minimal` | 初級 | 汎用 | 約16 | Claude Code 入門者 |
-| `standard` | 初級・中級 | 汎用 | 約37 | 一般的なプロジェクト（推奨） |
-| `standard-web` | 初級・中級 | 汎用・Web | 約37 | Web開発プロジェクト |
-| `full` | 全て | 全て | 約52 | フル活用したい方 |
+| プリセット | レベル | タイプ | アドオン | ファイル数 | 推奨用途 |
+|-----------|--------|--------|---------|-----------|---------|
+| `minimal` | 初級 | 汎用 | - | 約16 | Claude Code 入門者 |
+| `standard` | 初級・中級 | 汎用 | - | 約37 | 一般的なプロジェクト（推奨） |
+| `standard-web` | 初級・中級 | 汎用・Web | - | 約42 | Web開発プロジェクト |
+| `standard-learning` | 初級・中級 | 汎用 | learning | 約47 | 自己学習・進化を活用したい方 |
+| `standard-multi` | 初級・中級 | 汎用 | multi-model | 約44 | マルチAI連携を活用したい方 |
+| `full` | 全て | 全て | 全て | 約67 | フル活用したい方 |
 
 ### レベル
 
@@ -34,6 +36,17 @@
 |--------|------|
 | `general` | どのプロジェクトでも使用可能 |
 | `web` | Web開発固有（React, Next.js, E2E, Playwright等） |
+
+### アドオン
+
+上級（advanced）レベルのファイルを機能グループ単位で追加できます。
+`--addon` フラグまたは複合プリセットで指定します。
+
+| アドオン | 説明 | 主なファイル |
+|---------|------|-------------|
+| `learning` | 自己学習・進化 | eval, instinct-*, continuous-learning 等 |
+| `multi-model` | マルチAI連携 | orchestrate, multi-* 等 |
+| `infra` | 基盤・運用ツール | codemaps, pm2, sessions 等 |
 
 ---
 
@@ -57,6 +70,18 @@
 
 # 標準構成 + Web開発向け
 ./scripts/deploy-to-project.sh /path/to/project --preset standard-web
+
+# 標準構成 + 自己学習（複合プリセット）
+./scripts/deploy-to-project.sh /path/to/project --preset standard-learning
+
+# 標準構成 + マルチモデル（複合プリセット）
+./scripts/deploy-to-project.sh /path/to/project --preset standard-multi
+
+# 標準構成 + アドオン指定
+./scripts/deploy-to-project.sh /path/to/project --preset standard --addon learning
+
+# 標準構成 + 複数アドオン
+./scripts/deploy-to-project.sh /path/to/project --preset standard --addon learning --addon multi-model
 
 # フル構成
 ./scripts/deploy-to-project.sh /path/to/project --preset full
@@ -142,16 +167,41 @@ rm /path/to/your/project/.claude/*/CLAUDE.md 2>/dev/null
 | Skills | `tdd-workflow/`, `security-review/` | ワークフロー | general |
 | | `frontend-patterns/`, `backend-patterns/` | 開発パターン | **web** |
 
-### 上級（advanced）- カスタムセットアップ必要
+### 上級（advanced）- アドオンで追加
+
+#### learning（自己学習・進化）
 
 | カテゴリ | ファイル | 用途 |
 |---------|----------|------|
-| Commands | `instinct-*.md` (3件) | 学習システム |
-| | `eval.md`, `evolve.md`, `learn.md` | 評価・学習 |
-| | `skill-create.md`, `orchestrate.md` | 高度な機能 |
-| Skills | `continuous-learning/` (2件) | 継続学習 |
-| | `eval-harness/`, `iterative-retrieval/` | 評価・取得 |
-| | `project-guidelines-example/` | プロジェクト例 |
+| Commands | `eval.md`, `evolve.md`, `learn.md`, `skill-create.md` | 評価・学習・進化 |
+| | `instinct-export.md`, `instinct-import.md`, `instinct-status.md` | インスティンクト管理 |
+| Skills | `continuous-learning/`, `continuous-learning-v2/` | 継続学習 |
+| | `eval-harness/` | 評価ハーネス |
+
+#### multi-model（マルチAI連携）
+
+| カテゴリ | ファイル | 用途 |
+|---------|----------|------|
+| Commands | `orchestrate.md` | オーケストレーション |
+| | `multi-plan.md`, `multi-execute.md` | マルチモデル計画・実行 |
+| | `multi-backend.md`, `multi-frontend.md`, `multi-workflow.md` | マルチモデルワークフロー |
+| Skills | `iterative-retrieval/` | 反復取得 |
+
+#### infra（基盤・運用ツール）
+
+| カテゴリ | ファイル | 用途 |
+|---------|----------|------|
+| Commands | `update-codemaps.md` | コードマップ更新 |
+| | `setup-pm.md`, `pm2.md` | パッケージ管理・プロセス管理 |
+| | `sessions.md` | セッション管理 |
+| Skills | `configure-ecc/` | Everything Claude Code設定 |
+
+#### その他（アドオンなし）
+
+| カテゴリ | ファイル | 用途 |
+|---------|----------|------|
+| Skills | `project-guidelines-example/` | プロジェクトガイドライン例 |
+| | `nutrient-document-processing/` | Nutrientドキュメント処理 |
 
 ---
 
@@ -189,13 +239,26 @@ pnpm build
 ./scripts/deploy-to-project.sh /path/to/project --preset standard --force
 ```
 
-### Step 3: Web開発なら Web を追加
+### Step 3: 必要なアドオンを追加
+
+```bash
+# 自己学習・進化機能を追加
+./scripts/deploy-to-project.sh /path/to/project --preset standard --addon learning --force
+
+# マルチAI連携を追加
+./scripts/deploy-to-project.sh /path/to/project --preset standard --addon multi-model --force
+
+# または複合プリセットを使用
+./scripts/deploy-to-project.sh /path/to/project --preset standard-learning --force
+```
+
+### Step 4: Web開発なら Web を追加
 
 ```bash
 ./scripts/deploy-to-project.sh /path/to/project --preset standard-web --force
 ```
 
-### Step 4: フル活用
+### Step 5: フル活用
 
 ```bash
 ./scripts/deploy-to-project.sh /path/to/project --preset full --force
