@@ -17,6 +17,7 @@ FORCE=false
 PRESET=""
 LEVEL=""
 TYPE=""
+ADDON=""
 INTERACTIVE=false
 
 # 使用方法
@@ -25,7 +26,10 @@ usage() {
     echo ""
     echo "オプション:"
     echo "  --preset <name>      プリセットを使用"
-    echo "                       minimal, standard, standard-web, full"
+    echo "                       minimal, standard, standard-web,"
+    echo "                       standard-learning, standard-multi, full"
+    echo "  --addon <name>       アドオンを追加（複数回指定可）"
+    echo "                       learning, multi-model, infra"
     echo "  --level <levels>     レベルでフィルタ（カンマ区切り）"
     echo "                       beginner, intermediate, advanced"
     echo "  --type <types>       タイプでフィルタ（カンマ区切り）"
@@ -36,14 +40,24 @@ usage() {
     echo "  -h, --help           このヘルプを表示"
     echo ""
     echo "プリセット:"
-    echo "  minimal       初級 + 汎用のみ（約16ファイル）"
-    echo "  standard      初級・中級 + 汎用（約37ファイル）"
-    echo "  standard-web  初級・中級 + 汎用・Web（約42ファイル）"
-    echo "  full          全て（約67ファイル）"
+    echo "  minimal           初級 + 汎用のみ（約16ファイル）"
+    echo "  standard          初級・中級 + 汎用（約37ファイル）"
+    echo "  standard-web      初級・中級 + 汎用・Web（約42ファイル）"
+    echo "  standard-learning 初級・中級 + 汎用 + 自己学習（約47ファイル）"
+    echo "  standard-multi    初級・中級 + 汎用 + マルチモデル（約44ファイル）"
+    echo "  full              全て（約67ファイル）"
+    echo ""
+    echo "アドオン:"
+    echo "  learning     自己学習・進化（eval, instinct, continuous-learning 等）"
+    echo "  multi-model  マルチAI連携（orchestrate, multi-* 等）"
+    echo "  infra        基盤・運用ツール（codemaps, pm2, sessions 等）"
     echo ""
     echo "例:"
     echo "  $0 /path/to/project --preset minimal"
     echo "  $0 /path/to/project --preset standard-web"
+    echo "  $0 /path/to/project --preset standard --addon learning"
+    echo "  $0 /path/to/project --preset standard --addon learning --addon multi-model"
+    echo "  $0 /path/to/project --preset standard-learning"
     echo "  $0 /path/to/project --level beginner,intermediate --type general"
     echo "  $0 /path/to/project -i"
     exit 1
@@ -63,6 +77,14 @@ while [[ $# -gt 0 ]]; do
             ;;
         --type)
             TYPE="$2"
+            shift 2
+            ;;
+        --addon)
+            if [ -n "$ADDON" ]; then
+                ADDON="${ADDON},${2}"
+            else
+                ADDON="$2"
+            fi
             shift 2
             ;;
         --interactive|-i)
@@ -117,20 +139,24 @@ if [ "$INTERACTIVE" = true ]; then
     echo ""
     echo "プリセットを選択してください:"
     echo ""
-    echo "  1) minimal       - 初級のみ（すぐに使える基本セット）"
-    echo "  2) standard      - 初級・中級（推奨）"
-    echo "  3) standard-web  - 初級・中級 + Web開発向け"
-    echo "  4) full          - 全て"
-    echo "  5) custom        - カスタム選択"
+    echo "  1) minimal           - 初級のみ（すぐに使える基本セット）"
+    echo "  2) standard          - 初級・中級（推奨）"
+    echo "  3) standard-web      - 初級・中級 + Web開発向け"
+    echo "  4) standard-learning - 初級・中級 + 自己学習"
+    echo "  5) standard-multi    - 初級・中級 + マルチモデル"
+    echo "  6) full              - 全て"
+    echo "  7) custom            - カスタム選択"
     echo ""
-    read -p "選択 [1-5]: " choice
+    read -p "選択 [1-7]: " choice
 
     case $choice in
         1) PRESET="minimal" ;;
         2) PRESET="standard" ;;
         3) PRESET="standard-web" ;;
-        4) PRESET="full" ;;
-        5)
+        4) PRESET="standard-learning" ;;
+        5) PRESET="standard-multi" ;;
+        6) PRESET="full" ;;
+        7)
             echo ""
             echo "レベルを選択（複数可、カンマ区切り）:"
             echo "  beginner, intermediate, advanced"
@@ -139,6 +165,10 @@ if [ "$INTERACTIVE" = true ]; then
             echo "タイプを選択（複数可、カンマ区切り）:"
             echo "  general, web"
             read -p "タイプ: " TYPE
+            echo ""
+            echo "アドオンを選択（複数可、カンマ区切り。不要なら空Enter）:"
+            echo "  learning, multi-model, infra"
+            read -p "アドオン: " ADDON
             ;;
         *)
             echo "無効な選択です"
@@ -161,6 +191,16 @@ case $PRESET in
     standard-web)
         LEVEL="beginner,intermediate"
         TYPE="general,web"
+        ;;
+    standard-learning)
+        LEVEL="beginner,intermediate"
+        TYPE="general"
+        ADDON="learning"
+        ;;
+    standard-multi)
+        LEVEL="beginner,intermediate"
+        TYPE="general"
+        ADDON="multi-model"
         ;;
     full)
         LEVEL="beginner,intermediate,advanced"
@@ -191,6 +231,9 @@ if [ -n "$PRESET" ]; then
 fi
 echo "レベル: ${LEVEL}"
 echo "タイプ: ${TYPE}"
+if [ -n "$ADDON" ]; then
+    echo "アドオン: ${ADDON}"
+fi
 echo ""
 
 # ドライランモード
@@ -241,6 +284,7 @@ get_files_for_category() {
     local category=$1
     local level_filter=$2
     local type_filter=$3
+    local addon_filter=$4
 
     # MANIFESTを解析してファイルリストを取得
     local in_section=false
@@ -260,14 +304,16 @@ get_files_for_category() {
 
         # セクション内のテーブル行を解析
         if [ "$in_section" = true ] && [[ "$line" =~ ^\|[[:space:]]*\` ]]; then
-            # | `filename` | level | type | description | の形式
+            # | `filename` | level | type | description | addon | の形式
             filename=$(echo "$line" | cut -d'|' -f2 | tr -d ' `')
             level=$(echo "$line" | cut -d'|' -f3 | tr -d ' ')
             type=$(echo "$line" | cut -d'|' -f4 | tr -d ' ')
+            addon=$(echo "$line" | cut -d'|' -f6 | tr -d ' ')
 
             # フィルタチェック
             level_match=false
             type_match=false
+            addon_match=false
 
             IFS=',' read -ra LEVELS <<< "$level_filter"
             for l in "${LEVELS[@]}"; do
@@ -285,7 +331,17 @@ get_files_for_category() {
                 fi
             done
 
-            if [ "$level_match" = true ] && [ "$type_match" = true ]; then
+            if [ -n "$addon_filter" ] && [ "$addon" != "-" ]; then
+                IFS=',' read -ra ADDONS <<< "$addon_filter"
+                for a in "${ADDONS[@]}"; do
+                    if [ "$a" = "$addon" ]; then
+                        addon_match=true
+                        break
+                    fi
+                done
+            fi
+
+            if [ "$level_match" = true ] && [ "$type_match" = true ] || [ "$addon_match" = true ]; then
                 files="$files $filename"
             fi
         fi
@@ -300,7 +356,7 @@ copy_files() {
     local category_lower=$(echo "$category" | tr '[:upper:]' '[:lower:]')
     local src_dir="${TEMPLATE_DIR}/${category_lower}"
     local dest_dir="${TARGET_CLAUDE_DIR}/${category_lower}"
-    local files=$(get_files_for_category "$category" "$LEVEL" "$TYPE")
+    local files=$(get_files_for_category "$category" "$LEVEL" "$TYPE" "$ADDON")
 
     if [ -z "$files" ]; then
         echo "  [スキップ] ${category}: 該当ファイルなし"
