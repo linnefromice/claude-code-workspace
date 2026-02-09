@@ -6,22 +6,6 @@
 - **PostToolUse**: ツール実行後（自動フォーマット、チェック）
 - **Stop**: セッション終了時（最終検証）
 
-## 現在のフック（~/.claude/settings.json 内）
-
-### PreToolUse
-- **tmuxリマインダー**: 長時間実行コマンド（npm, pnpm, yarn, cargo等）にtmuxを提案
-- **git pushレビュー**: プッシュ前にZedでレビューを開く
-- **ドキュメントブロッカー**: 不要な .md/.txt ファイルの作成をブロック
-
-### PostToolUse
-- **PR作成**: PR URLとGitHub Actionsステータスをログ出力
-- **Prettier**: JS/TSファイルを編集後に自動フォーマット
-- **TypeScriptチェック**: .ts/.tsx ファイル編集後にtscを実行
-- **console.log警告**: 編集されたファイル内のconsole.logを警告
-
-### Stop
-- **console.log監査**: セッション終了前にすべての変更ファイルでconsole.logをチェック
-
 ## 自動承認パーミッション
 
 慎重に使用:
