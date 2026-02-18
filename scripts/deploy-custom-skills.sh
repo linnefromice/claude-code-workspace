@@ -1,20 +1,22 @@
 #!/bin/bash
 # =============================================================================
 # deploy-custom-skills.sh
-# カスタムスキルを対象プロジェクトにデプロイする
+# カスタムスキル・カスタムコマンドを対象プロジェクトにデプロイする
 # =============================================================================
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WORKSPACE_DIR="$(dirname "$SCRIPT_DIR")"
-CUSTOM_SAMPLES_DIR="${WORKSPACE_DIR}/template-.claude/skills/custom-samples"
+CUSTOM_SKILLS_DIR="${WORKSPACE_DIR}/template-.claude/skills/custom-samples"
+CUSTOM_COMMANDS_DIR="${WORKSPACE_DIR}/template-.claude/commands/custom-samples"
 
 # デフォルト設定
 DRY_RUN=false
 FORCE=false
 INTERACTIVE=false
 SELECTED_SKILLS=()
+SELECTED_COMMANDS=()
 
 # 使用方法
 usage() {
@@ -23,30 +25,32 @@ usage() {
     echo "オプション:"
     echo "  --skill <name>       デプロイするスキル（複数指定可）"
     echo "                       adapt-external-docs, merge-reference-docs"
-    echo "  --all                全てのカスタムスキルをデプロイ"
+    echo "  --command <name>     デプロイするコマンド（複数指定可）"
+    echo "                       create-pr, merge-pr"
+    echo "  --all                全てのカスタムスキル・コマンドをデプロイ"
     echo "  --interactive, -i    対話モードで選択"
     echo "  --force              既存ファイルを上書き"
     echo "  --dry-run            実際にはコピーしない（確認のみ）"
-    echo "  --list               利用可能なスキル一覧を表示"
+    echo "  --list               利用可能なスキル・コマンド一覧を表示"
     echo "  -h, --help           このヘルプを表示"
     echo ""
     echo "例:"
     echo "  $0 /path/to/project --all"
     echo "  $0 /path/to/project --skill adapt-external-docs"
-    echo "  $0 /path/to/project --skill adapt-external-docs --skill merge-reference-docs"
+    echo "  $0 /path/to/project --command create-pr --command merge-pr"
+    echo "  $0 /path/to/project --skill adapt-external-docs --command create-pr"
     echo "  $0 /path/to/project -i"
     exit 1
 }
 
-# 利用可能なスキル一覧を表示
-list_skills() {
+# 利用可能なスキル・コマンド一覧を表示
+list_items() {
     echo "利用可能なカスタムスキル:"
     echo ""
-    for skill_dir in "${CUSTOM_SAMPLES_DIR}"/*/; do
+    for skill_dir in "${CUSTOM_SKILLS_DIR}"/*/; do
         if [ -d "$skill_dir" ]; then
             skill_name=$(basename "$skill_dir")
             if [ -f "${skill_dir}/SKILL.md" ]; then
-                # SKILL.md から description を抽出
                 description=$(grep -A1 "^description:" "${skill_dir}/SKILL.md" | head -1 | sed 's/description: *//' | tr -d '"')
                 echo "  ${skill_name}"
                 echo "    ${description}"
@@ -54,12 +58,24 @@ list_skills() {
             fi
         fi
     done
+
+    echo "利用可能なカスタムコマンド:"
+    echo ""
+    for cmd_file in "${CUSTOM_COMMANDS_DIR}"/*.md; do
+        if [ -f "$cmd_file" ]; then
+            cmd_name=$(basename "$cmd_file" .md)
+            description=$(grep "^description:" "$cmd_file" | head -1 | sed 's/description: *//' | tr -d '"')
+            echo "  ${cmd_name}"
+            echo "    ${description}"
+            echo ""
+        fi
+    done
     exit 0
 }
 
 # 引数解析
 TARGET_DIR=""
-ALL_SKILLS=false
+ALL_ITEMS=false
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -67,8 +83,12 @@ while [[ $# -gt 0 ]]; do
             SELECTED_SKILLS+=("$2")
             shift 2
             ;;
+        --command)
+            SELECTED_COMMANDS+=("$2")
+            shift 2
+            ;;
         --all)
-            ALL_SKILLS=true
+            ALL_ITEMS=true
             shift
             ;;
         --interactive|-i)
@@ -84,7 +104,7 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
         --list)
-            list_skills
+            list_items
             ;;
         -h|--help)
             usage
@@ -119,18 +139,20 @@ fi
 # 絶対パスに変換
 TARGET_DIR="$(cd "$TARGET_DIR" && pwd)"
 TARGET_SKILLS_DIR="${TARGET_DIR}/.claude/skills"
+TARGET_COMMANDS_DIR="${TARGET_DIR}/.claude/commands"
 
 # 対話モード
 if [ "$INTERACTIVE" = true ]; then
-    echo "=== カスタムスキル デプロイウィザード ==="
-    echo ""
-    echo "デプロイするスキルを選択してください:"
+    echo "=== カスタムデプロイウィザード ==="
     echo ""
 
-    # 利用可能なスキルを列挙
+    # --- スキル選択 ---
+    echo "[スキル] デプロイするスキルを選択してください:"
+    echo ""
+
     skill_list=()
     i=1
-    for skill_dir in "${CUSTOM_SAMPLES_DIR}"/*/; do
+    for skill_dir in "${CUSTOM_SKILLS_DIR}"/*/; do
         if [ -d "$skill_dir" ]; then
             skill_name=$(basename "$skill_dir")
             skill_list+=("$skill_name")
@@ -141,15 +163,17 @@ if [ "$INTERACTIVE" = true ]; then
             ((i++))
         fi
     done
-    echo "  a) 全て選択"
+    echo "  a) 全て選択  n) スキップ"
     echo ""
 
-    read -p "選択 (カンマ区切りで複数可, 例: 1,2 または a): " choice
+    read -p "選択 (カンマ区切りで複数可, 例: 1,2 または a): " skill_choice
 
-    if [ "$choice" = "a" ] || [ "$choice" = "A" ]; then
-        ALL_SKILLS=true
-    else
-        IFS=',' read -ra selections <<< "$choice"
+    if [ "$skill_choice" = "a" ] || [ "$skill_choice" = "A" ]; then
+        for s in "${skill_list[@]}"; do
+            SELECTED_SKILLS+=("$s")
+        done
+    elif [ "$skill_choice" != "n" ] && [ "$skill_choice" != "N" ] && [ -n "$skill_choice" ]; then
+        IFS=',' read -ra selections <<< "$skill_choice"
         for sel in "${selections[@]}"; do
             sel=$(echo "$sel" | tr -d ' ')
             if [[ "$sel" =~ ^[0-9]+$ ]] && [ "$sel" -ge 1 ] && [ "$sel" -le "${#skill_list[@]}" ]; then
@@ -158,35 +182,84 @@ if [ "$INTERACTIVE" = true ]; then
         done
     fi
     echo ""
+
+    # --- コマンド選択 ---
+    echo "[コマンド] デプロイするコマンドを選択してください:"
+    echo ""
+
+    cmd_list=()
+    i=1
+    for cmd_file in "${CUSTOM_COMMANDS_DIR}"/*.md; do
+        if [ -f "$cmd_file" ]; then
+            cmd_name=$(basename "$cmd_file" .md)
+            cmd_list+=("$cmd_name")
+            description=$(grep "^description:" "$cmd_file" | head -1 | sed 's/description: *//' | tr -d '"')
+            echo "  $i) ${cmd_name}"
+            echo "     ${description}"
+            echo ""
+            ((i++))
+        fi
+    done
+    echo "  a) 全て選択  n) スキップ"
+    echo ""
+
+    read -p "選択 (カンマ区切りで複数可, 例: 1,2 または a): " cmd_choice
+
+    if [ "$cmd_choice" = "a" ] || [ "$cmd_choice" = "A" ]; then
+        for c in "${cmd_list[@]}"; do
+            SELECTED_COMMANDS+=("$c")
+        done
+    elif [ "$cmd_choice" != "n" ] && [ "$cmd_choice" != "N" ] && [ -n "$cmd_choice" ]; then
+        IFS=',' read -ra selections <<< "$cmd_choice"
+        for sel in "${selections[@]}"; do
+            sel=$(echo "$sel" | tr -d ' ')
+            if [[ "$sel" =~ ^[0-9]+$ ]] && [ "$sel" -ge 1 ] && [ "$sel" -le "${#cmd_list[@]}" ]; then
+                SELECTED_COMMANDS+=("${cmd_list[$((sel-1))]}")
+            fi
+        done
+    fi
+    echo ""
 fi
 
-# --all の場合、全スキルを選択
-if [ "$ALL_SKILLS" = true ]; then
+# --all の場合、全スキル・コマンドを選択
+if [ "$ALL_ITEMS" = true ]; then
     SELECTED_SKILLS=()
-    for skill_dir in "${CUSTOM_SAMPLES_DIR}"/*/; do
+    for skill_dir in "${CUSTOM_SKILLS_DIR}"/*/; do
         if [ -d "$skill_dir" ]; then
             skill_name=$(basename "$skill_dir")
             SELECTED_SKILLS+=("$skill_name")
         fi
     done
+    SELECTED_COMMANDS=()
+    for cmd_file in "${CUSTOM_COMMANDS_DIR}"/*.md; do
+        if [ -f "$cmd_file" ]; then
+            cmd_name=$(basename "$cmd_file" .md)
+            SELECTED_COMMANDS+=("$cmd_name")
+        fi
+    done
 fi
 
-# スキルが選択されていない場合
-if [ ${#SELECTED_SKILLS[@]} -eq 0 ]; then
-    echo "エラー: デプロイするスキルを指定してください"
-    echo "  --skill <name> または --all または -i を使用してください"
+# スキルもコマンドも選択されていない場合
+if [ ${#SELECTED_SKILLS[@]} -eq 0 ] && [ ${#SELECTED_COMMANDS[@]} -eq 0 ]; then
+    echo "エラー: デプロイするスキルまたはコマンドを指定してください"
+    echo "  --skill <name> / --command <name> / --all / -i を使用してください"
     exit 1
 fi
 
-echo "=== カスタムスキルのデプロイ ==="
+echo "=== カスタムデプロイ ==="
 echo ""
-echo "ソース: ${CUSTOM_SAMPLES_DIR}"
-echo "ターゲット: ${TARGET_SKILLS_DIR}"
-echo ""
-echo "選択されたスキル:"
-for skill in "${SELECTED_SKILLS[@]}"; do
-    echo "  - ${skill}"
-done
+if [ ${#SELECTED_SKILLS[@]} -gt 0 ]; then
+    echo "スキル（ソース: ${CUSTOM_SKILLS_DIR}）"
+    for skill in "${SELECTED_SKILLS[@]}"; do
+        echo "  - ${skill}"
+    done
+fi
+if [ ${#SELECTED_COMMANDS[@]} -gt 0 ]; then
+    echo "コマンド（ソース: ${CUSTOM_COMMANDS_DIR}）"
+    for cmd in "${SELECTED_COMMANDS[@]}"; do
+        echo "  - ${cmd}"
+    done
+fi
 echo ""
 
 # ドライランモード
@@ -196,17 +269,22 @@ if [ "$DRY_RUN" = true ]; then
 fi
 
 # 既存チェック
-existing_skills=()
+existing_items=()
 for skill in "${SELECTED_SKILLS[@]}"; do
     if [ -d "${TARGET_SKILLS_DIR}/${skill}" ]; then
-        existing_skills+=("$skill")
+        existing_items+=("skills/${skill}")
+    fi
+done
+for cmd in "${SELECTED_COMMANDS[@]}"; do
+    if [ -f "${TARGET_COMMANDS_DIR}/${cmd}.md" ]; then
+        existing_items+=("commands/${cmd}.md")
     fi
 done
 
-if [ ${#existing_skills[@]} -gt 0 ] && [ "$FORCE" = false ] && [ "$DRY_RUN" = false ]; then
-    echo "警告: 以下のスキルは既に存在します:"
-    for skill in "${existing_skills[@]}"; do
-        echo "  - ${skill}"
+if [ ${#existing_items[@]} -gt 0 ] && [ "$FORCE" = false ] && [ "$DRY_RUN" = false ]; then
+    echo "警告: 以下は既に存在します:"
+    for item in "${existing_items[@]}"; do
+        echo "  - ${item}"
     done
     echo ""
     read -p "上書きしますか？ (y/N): " confirm
@@ -218,44 +296,77 @@ if [ ${#existing_skills[@]} -gt 0 ] && [ "$FORCE" = false ] && [ "$DRY_RUN" = fa
 fi
 
 # メイン処理
-echo "[1/2] ディレクトリを準備中..."
+total_steps=0
+[ ${#SELECTED_SKILLS[@]} -gt 0 ] && ((total_steps++))
+[ ${#SELECTED_COMMANDS[@]} -gt 0 ] && ((total_steps++))
+current_step=0
+
+echo "[1/$((total_steps + 1))] ディレクトリを準備中..."
 if [ "$DRY_RUN" = false ]; then
-    mkdir -p "$TARGET_SKILLS_DIR"
+    [ ${#SELECTED_SKILLS[@]} -gt 0 ] && mkdir -p "$TARGET_SKILLS_DIR"
+    [ ${#SELECTED_COMMANDS[@]} -gt 0 ] && mkdir -p "$TARGET_COMMANDS_DIR"
 fi
 echo ""
 
-echo "[2/2] スキルをコピー中..."
 copied_count=0
-for skill in "${SELECTED_SKILLS[@]}"; do
-    src_dir="${CUSTOM_SAMPLES_DIR}/${skill}"
-    dest_dir="${TARGET_SKILLS_DIR}/${skill}"
 
-    if [ -d "$src_dir" ]; then
-        if [ "$DRY_RUN" = false ]; then
-            mkdir -p "$dest_dir"
-            cp -r "${src_dir}/"* "$dest_dir/"
-            echo "  [完了] ${skill}"
+# スキルのコピー
+if [ ${#SELECTED_SKILLS[@]} -gt 0 ]; then
+    ((current_step++))
+    echo "[$((current_step + 1))/$((total_steps + 1))] スキルをコピー中..."
+    for skill in "${SELECTED_SKILLS[@]}"; do
+        src_dir="${CUSTOM_SKILLS_DIR}/${skill}"
+        dest_dir="${TARGET_SKILLS_DIR}/${skill}"
+
+        if [ -d "$src_dir" ]; then
+            if [ "$DRY_RUN" = false ]; then
+                mkdir -p "$dest_dir"
+                cp -r "${src_dir}/"* "$dest_dir/"
+                echo "  [完了] skills/${skill}"
+            else
+                echo "  [ドライラン] skills/${skill}"
+            fi
+            ((copied_count++))
         else
-            echo "  [ドライラン] ${skill}"
+            echo "  [スキップ] ${skill}: 存在しません"
         fi
-        ((copied_count++))
-    else
-        echo "  [スキップ] ${skill}: 存在しません"
-    fi
-done
-echo ""
+    done
+    echo ""
+fi
+
+# コマンドのコピー
+if [ ${#SELECTED_COMMANDS[@]} -gt 0 ]; then
+    ((current_step++))
+    echo "[$((current_step + 1))/$((total_steps + 1))] コマンドをコピー中..."
+    for cmd in "${SELECTED_COMMANDS[@]}"; do
+        src_file="${CUSTOM_COMMANDS_DIR}/${cmd}.md"
+        dest_file="${TARGET_COMMANDS_DIR}/${cmd}.md"
+
+        if [ -f "$src_file" ]; then
+            if [ "$DRY_RUN" = false ]; then
+                cp "$src_file" "$dest_file"
+                echo "  [完了] commands/${cmd}.md"
+            else
+                echo "  [ドライラン] commands/${cmd}.md"
+            fi
+            ((copied_count++))
+        else
+            echo "  [スキップ] ${cmd}: 存在しません"
+        fi
+    done
+    echo ""
+fi
 
 # 結果表示
 if [ "$DRY_RUN" = false ]; then
     echo "=== デプロイ完了 ==="
     echo ""
-    echo "配置先: ${TARGET_SKILLS_DIR}"
-    echo "コピーしたスキル: ${copied_count}"
+    echo "配置先: ${TARGET_DIR}/.claude/"
+    echo "コピーしたアイテム: ${copied_count}"
     echo ""
     echo "次のステップ:"
-    echo "  1. 各スキルの SKILL.md を開く"
+    echo "  1. 配置されたファイルを確認"
     echo "  2. <!-- CUSTOMIZE: --> コメントの箇所をプロジェクトに合わせて調整"
-    echo "  3. プロジェクト固有のパス、コマンド、エージェント名を更新"
 else
     echo "=== ドライラン完了 ==="
     echo ""

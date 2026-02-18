@@ -82,6 +82,15 @@
 | `pm2.md` | advanced | general | PM2プロセス管理 | infra |
 | `sessions.md` | advanced | general | セッション管理 | infra |
 
+### カスタムサンプル（custom-samples/）
+
+以下はプロジェクト固有のカスタマイズ用コマンドです。プリセットのデプロイ対象外ですが、`deploy-custom-skills.sh` でデプロイできます。
+
+| ファイル | 説明 |
+|----------|------|
+| `custom-samples/create-pr.md` | PR作成（ブランチ作成→コミット→プッシュ→PR） |
+| `custom-samples/merge-pr.md` | PRマージ（CI確認→マージ→ブランチクリーンアップ） |
+
 ---
 
 ## Rules
@@ -205,6 +214,7 @@ v2 よりサブディレクトリ構造（`common/` + `typescript/`）に変更�
 
 | 日付 | 内容 |
 |------|------|
+| 2026-02-18 | Commands カスタムサンプル×2 追加（create-pr, merge-pr） |
 | 2026-02-09 | アドオン列追加（learning, multi-model, infra）、standard-learning/standard-multi プリセット追加 |
 | 2026-02-09 | v2: Rules をサブディレクトリ構造に変更、Commands×7・Skills×2 追加、ファイル数 52→67 |
 | 2026-01-28 | 初回作成 |
