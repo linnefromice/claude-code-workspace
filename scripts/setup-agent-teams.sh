@@ -16,6 +16,7 @@ FORCE=false
 SKIP_HOOKS=false
 SKIP_SETTINGS=false
 SKIP_CLAUDE_MD=false
+SKIP_COMMANDS=false
 
 # 色付き出力
 RED='\033[0;31m'
@@ -40,6 +41,7 @@ usage() {
     echo "  - .claude/hooks/           TeammateIdle フックスクリプト"
     echo "  - .claude/commands/        team-start, team-review コマンド"
     echo "  - .claude/agents/          team-orchestrator エージェント"
+    echo "  - .claude/rules/           Agent Teams 自動起動ルール"
     echo "  - CLAUDE.md                Agent Team ルールの追記"
     echo ""
     echo "オプション:"
@@ -48,6 +50,7 @@ usage() {
     echo "  --skip-hooks         フック設定をスキップ"
     echo "  --skip-settings      settings.json の変更をスキップ"
     echo "  --skip-claude-md     CLAUDE.md への追記をスキップ"
+    echo "  --skip-commands      コマンド配置をスキップ"
     echo "  -h, --help           このヘルプを表示"
     echo ""
     echo "例:"
@@ -55,6 +58,7 @@ usage() {
     echo "  $0 /path/to/project --dry-run"
     echo "  $0 /path/to/project --force"
     echo "  $0 /path/to/project --skip-hooks"
+    echo "  $0 /path/to/project --skip-commands"
     exit 1
 }
 
@@ -80,6 +84,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --skip-claude-md)
             SKIP_CLAUDE_MD=true
+            shift
+            ;;
+        --skip-commands)
+            SKIP_COMMANDS=true
             shift
             ;;
         -h|--help)
@@ -177,24 +185,28 @@ copy_file() {
 }
 
 # -----------------------------------------------------------------------------
-# [1/5] コマンドのコピー
+# [1/6] コマンドのコピー
 # -----------------------------------------------------------------------------
-echo "[1/5] コマンドを配置中..."
+echo "[1/6] コマンドを配置中..."
 
-copy_file \
-    "${AGENT_TEAMS_DIR}/commands/team-start.md" \
-    "${TARGET_CLAUDE_DIR}/commands/team-start.md"
+if [ "$SKIP_COMMANDS" = true ]; then
+    print_info "スキップ（--skip-commands）"
+else
+    copy_file \
+        "${AGENT_TEAMS_DIR}/commands/team-start.md" \
+        "${TARGET_CLAUDE_DIR}/commands/team-start.md"
 
-copy_file \
-    "${AGENT_TEAMS_DIR}/commands/team-review.md" \
-    "${TARGET_CLAUDE_DIR}/commands/team-review.md"
+    copy_file \
+        "${AGENT_TEAMS_DIR}/commands/team-review.md" \
+        "${TARGET_CLAUDE_DIR}/commands/team-review.md"
+fi
 
 echo ""
 
 # -----------------------------------------------------------------------------
-# [2/5] エージェントのコピー
+# [2/6] エージェントのコピー
 # -----------------------------------------------------------------------------
-echo "[2/5] エージェント定義を配置中..."
+echo "[2/6] エージェント定義を配置中..."
 
 copy_file \
     "${AGENT_TEAMS_DIR}/agents/team-orchestrator.md" \
@@ -203,9 +215,9 @@ copy_file \
 echo ""
 
 # -----------------------------------------------------------------------------
-# [3/5] フックスクリプトのコピー
+# [3/6] フックスクリプトのコピー
 # -----------------------------------------------------------------------------
-echo "[3/5] フックスクリプトを配置中..."
+echo "[3/6] フックスクリプトを配置中..."
 
 if [ "$SKIP_HOOKS" = true ]; then
     print_info "スキップ（--skip-hooks）"
@@ -223,9 +235,9 @@ fi
 echo ""
 
 # -----------------------------------------------------------------------------
-# [4/5] settings.json のマージ
+# [4/6] settings.json のマージ
 # -----------------------------------------------------------------------------
-echo "[4/5] settings.json を設定中..."
+echo "[4/6] settings.json を設定中..."
 
 if [ "$SKIP_SETTINGS" = true ]; then
     print_info "スキップ（--skip-settings）"
@@ -288,9 +300,9 @@ fi
 echo ""
 
 # -----------------------------------------------------------------------------
-# [5/5] CLAUDE.md への追記
+# [5/6] CLAUDE.md への追記
 # -----------------------------------------------------------------------------
-echo "[5/5] CLAUDE.md に Agent Team ルールを追記中..."
+echo "[5/6] CLAUDE.md に Agent Team ルールを追記中..."
 
 if [ "$SKIP_CLAUDE_MD" = true ]; then
     print_info "スキップ（--skip-claude-md）"
@@ -344,6 +356,26 @@ fi
 echo ""
 
 # -----------------------------------------------------------------------------
+# [6/6] ルールの配置
+# -----------------------------------------------------------------------------
+echo "[6/6] ルールを配置中..."
+
+if [ -d "${AGENT_TEAMS_DIR}/rules" ]; then
+    for rule_file in "${AGENT_TEAMS_DIR}"/rules/*.md; do
+        if [ -f "$rule_file" ]; then
+            filename=$(basename "$rule_file")
+            copy_file \
+                "$rule_file" \
+                "${TARGET_CLAUDE_DIR}/rules/${filename}"
+        fi
+    done
+else
+    print_warning "ルールディレクトリが見つかりません: ${AGENT_TEAMS_DIR}/rules"
+fi
+
+echo ""
+
+# -----------------------------------------------------------------------------
 # 結果サマリー
 # -----------------------------------------------------------------------------
 echo "=== セットアップ完了 ==="
@@ -364,9 +396,10 @@ fi
 echo ""
 echo "次のステップ:"
 echo "  1. Claude Code で対象プロジェクトを開く"
-echo "  2. /team-start feature <タスク説明> でチームを起動"
-echo "  3. Shift+Tab で Delegate Mode を有効化"
-echo "  4. /team-review status でチーム状態を確認"
+echo "  2. 複雑なタスクを依頼すると Agent Teams が自動で起動します"
+echo "  3. または /team-start feature <タスク説明> で手動起動も可能"
+echo "  4. Shift+Tab で Delegate Mode を有効化"
+echo "  5. /team-review status でチーム状態を確認"
 echo ""
 
 if [ "$SKIP_SETTINGS" = false ] && ! command -v jq &> /dev/null; then

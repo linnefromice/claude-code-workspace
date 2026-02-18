@@ -190,6 +190,7 @@ v2 よりサブディレクトリ構造（`common/` + `typescript/`）に変更�
 | `agent-teams/commands/team-start.md` | command | Agent Teams を起動してタスクを並列実行する |
 | `agent-teams/commands/team-review.md` | command | チーム状態の確認・統合レポート・シャットダウン |
 | `agent-teams/agents/team-orchestrator.md` | agent | チーム全体のオーケストレーション |
+| `agent-teams/rules/agent-teams.md` | rule | Agent Teams 起動の自動判断ルール |
 | `agent-teams/CLAUDE_ADDITION.md` | docs | CLAUDE.md に追記する Agent Team ルール |
 
 ---
