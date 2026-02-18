@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "TeammateIdle": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'タスクリストを確認して、未完了のタスクがあれば作業を続けてください' >&2; exit 2"
+          }
+        ]
+      }
+    ]
+  }
+}

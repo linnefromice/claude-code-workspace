@@ -30,6 +30,7 @@ claude-code-workspace/
 │   ├── rules/                     # ルール定義
 │   ├── skills/                    # スキル定義
 │   ├── contexts/                  # コンテキスト定義
+│   ├── settings-samples/          # settings.json テンプレート
 │   └── MANIFEST.md                # 分類情報
 │
 ├── agent-teams/                   # Agent Teams セットアップリソース
@@ -62,13 +63,16 @@ claude-code-workspace/
 ./scripts/deploy-custom-skills.sh /path/to/project --command create-pr --command merge-pr
 ./scripts/deploy-custom-skills.sh /path/to/project --skill adapt-external-docs
 
-# [1-D] アドオンのみ追加（既存プロジェクト向け）
+# [1-D] settings.json 設定（オプション）
+./scripts/deploy-settings.sh /path/to/project --settings teammate-idle
+
+# [1-E] アドオンのみ追加（既存プロジェクト向け）
 ./scripts/deploy-to-project.sh /path/to/project --addon learning --addon-only
 
-# [1-E] デプロイ状態確認
+# [1-F] デプロイ状態確認
 ./scripts/deploy-to-project.sh /path/to/project --status
 
-# [1-F] Agent Teams セットアップ（オプション）
+# [1-G] Agent Teams セットアップ（オプション）
 ./scripts/setup-agent-teams.sh /path/to/project
 ```
 
@@ -116,6 +120,7 @@ do @prompts/generalize-claude-templates.md
 | `initialize-project/setup.sh` | CLAUDE.md, .ai ディレクトリの配置 |
 | `scripts/deploy-to-project.sh` | テンプレートのプロジェクト配置 |
 | `scripts/deploy-custom-skills.sh` | カスタムスキル・コマンドの配置 |
+| `scripts/deploy-settings.sh` | settings.json テンプレートのデプロイ |
 | `scripts/setup-templates.sh` | ソースリポジトリの準備 |
 | `scripts/deploy-templates.sh` | 翻訳済みテンプレートの配置 |
 | `scripts/setup-agent-teams.sh` | Agent Teams 設定のセットアップ |
