@@ -1,6 +1,6 @@
-# カスタムスキルの作成・追加
+# カスタムスキル・コマンドの作成・追加
 
-テンプレートを適用した後に、プロジェクト固有のスキルを追加・カスタマイズするためのガイドです。
+テンプレートを適用した後に、プロジェクト固有のスキルやコマンドを追加・カスタマイズするためのガイドです。
 
 ---
 
@@ -36,6 +36,32 @@
 - 参照パスのプロジェクト固有化
 - コマンド形式の統一（npm → pnpm 等）
 
+### カスタムコマンド
+
+スキルに加えて、以下のカスタムコマンドも提供されています。
+
+#### create-pr
+
+**目的:** ローカルの未コミット変更から新規ブランチを作成し、PRを一括作成
+
+**主な機能:**
+- 変更内容を分析して `<type>/<short-desc>` 形式のブランチ名を自動生成
+- センシティブファイル（.env 等）のステージング防止
+- Conventional Commits 形式のコミットメッセージ
+- PR タイトル・本文を自動生成
+
+#### merge-pr
+
+**目的:** PRのCI確認からマージ、ブランチクリーンアップまでを一括実行
+
+**主な機能:**
+- PR 番号の引数指定 or カレントブランチから自動検出
+- CI pending 時は完了まで待機
+- CI 失敗時はマージせず停止
+- マージ後にデフォルトブランチ名を動的取得して切り替え
+
+---
+
 ### merge-reference-docs
 
 **目的:** 外部のベストプラクティスをプロジェクトファイルに統合
@@ -57,7 +83,7 @@
 ### 方法A: デプロイスクリプトを使用（推奨）
 
 ```bash
-# 全てのカスタムスキルをデプロイ
+# 全てのカスタムスキル・コマンドをデプロイ
 ./scripts/deploy-custom-skills.sh /path/to/project --all
 
 # 対話モードで選択
@@ -66,7 +92,13 @@
 # 特定のスキルのみ
 ./scripts/deploy-custom-skills.sh /path/to/project --skill adapt-external-docs
 
-# 利用可能なスキル一覧を表示
+# 特定のコマンドのみ
+./scripts/deploy-custom-skills.sh /path/to/project --command create-pr --command merge-pr
+
+# スキルとコマンドを組み合わせ
+./scripts/deploy-custom-skills.sh /path/to/project --skill adapt-external-docs --command create-pr
+
+# 利用可能なスキル・コマンド一覧を表示
 ./scripts/deploy-custom-skills.sh --list
 
 # ドライラン（確認のみ）
@@ -160,6 +192,9 @@ cp -r template-.claude/skills/custom-samples/merge-reference-docs/ /path/to/proj
 .claude/
 ├── agents/          # エージェント定義
 ├── commands/        # コマンド定義
+│   ├── plan.md              # テンプレートから
+│   ├── create-pr.md         # ★ カスタム追加
+│   └── merge-pr.md          # ★ カスタム追加
 ├── rules/           # ルール定義
 ├── contexts/        # コンテキスト定義
 └── skills/          # スキル定義
