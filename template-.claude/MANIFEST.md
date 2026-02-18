@@ -170,11 +170,27 @@ v2 よりサブディレクトリ構造（`common/` + `typescript/`）に変更�
 
 ## Settings
 
-プリセットのデプロイ対象外。`deploy-custom-skills.sh --settings` でデプロイできます。
+プリセットのデプロイ対象外。`deploy-settings.sh` でデプロイできます。
 
 | ファイル | 説明 |
 |----------|------|
 | `settings-samples/teammate-idle.json` | TeammateIdle フック（アイドル時にタスク継続を促す） |
+
+---
+
+## Agent Teams
+
+プリセットのデプロイ対象外。`setup-agent-teams.sh` で一括セットアップできます。
+`agent-teams/` ディレクトリに格納されています（`template-.claude/` 外）。
+
+| ファイル | 種別 | 説明 |
+|----------|------|------|
+| `agent-teams/settings-fragment.json` | settings | Agent Teams 用 settings.json テンプレート（env + hooks） |
+| `agent-teams/hooks/keep-teammate-busy.sh` | hook | TeammateIdle フック（未完了タスクがあれば作業継続を促す） |
+| `agent-teams/commands/team-start.md` | command | Agent Teams を起動してタスクを並列実行する |
+| `agent-teams/commands/team-review.md` | command | チーム状態の確認・統合レポート・シャットダウン |
+| `agent-teams/agents/team-orchestrator.md` | agent | チーム全体のオーケストレーション |
+| `agent-teams/CLAUDE_ADDITION.md` | docs | CLAUDE.md に追記する Agent Team ルール |
 
 ---
 
@@ -224,6 +240,7 @@ v2 よりサブディレクトリ構造（`common/` + `typescript/`）に変更�
 
 | 日付 | 内容 |
 |------|------|
+| 2026-02-18 | Agent Teams セクション追加、Settings 説明を deploy-settings.sh に修正 |
 | 2026-02-18 | Commands カスタムサンプル×2（create-pr, merge-pr）、Settings テンプレート×1（teammate-idle）追加 |
 | 2026-02-09 | アドオン列追加（learning, multi-model, infra）、standard-learning/standard-multi プリセット追加 |
 | 2026-02-09 | v2: Rules をサブディレクトリ構造に変更、Commands×7・Skills×2 追加、ファイル数 52→67 |

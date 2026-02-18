@@ -1,0 +1,29 @@
+{
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
+  "hooks": {
+    "TeammateIdle": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/keep-teammate-busy.sh"
+          }
+        ]
+      }
+    ],
+    "TaskCompleted": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "このタスクが本当に完了したか確認してください。以下をチェック: 1) コードが実際に書かれ、テストが実行されたか？ 2) TODO コメントが残っていないか？ 3) 受入基準を満たしているか？ 基準を満たす場合のみ approve し、不十分な場合は具体的な修正フィードバックと共に block してください。"
+          }
+        ]
+      }
+    ]
+  }
+}
