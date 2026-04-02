@@ -1,6 +1,12 @@
+---
+name: verification-loop
+description: "A comprehensive verification system for Claude Code sessions."
+origin: ECC
+---
+
 # 検証ループスキル
 
-Claude Codeセッション用の包括的な検証システム。
+Claude Code セッション用の包括的な検証システムです。
 
 ## 使用タイミング
 

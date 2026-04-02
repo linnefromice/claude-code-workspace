@@ -1,17 +1,18 @@
 ---
 name: security-review
 description: Use this skill when adding authentication, handling user input, working with secrets, creating API endpoints, or implementing payment/sensitive features. Provides comprehensive security checklist and patterns.
+origin: ECC
 ---
 
 # セキュリティレビュースキル
 
-このスキルはすべてのコードがセキュリティベストプラクティスに従い、潜在的な脆弱性を特定することを保証する。
+このスキルはすべてのコードがセキュリティベストプラクティスに従い、潜在的な脆弱性を特定することを保証します。
 
-## 発動タイミング
+## 起動条件
 
 - 認証や認可を実装する時
 - ユーザー入力やファイルアップロードを処理する時
-- 新しいAPIエンドポイントを作成する時
+- 新しい API エンドポイントを作成する時
 - シークレットや認証情報を扱う時
 - 決済機能を実装する時
 - 機密データを保存または送信する時

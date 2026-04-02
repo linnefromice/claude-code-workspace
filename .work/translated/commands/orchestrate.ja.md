@@ -1,105 +1,27 @@
-# Orchestrateコマンド
+---
+description: dmux-workflowsとautonomous-agent-harnessのレガシースラッシュエントリーシム。スキルを直接使用することを推奨します。
+---
 
-複雑なタスクのための順次エージェントワークフロー。
+# Orchestrateコマンド（レガシーシム）
 
-## 使用方法
+`/orchestrate` をまだ呼び出している場合のみ使用してください。メンテナンスされているオーケストレーションガイダンスは `skills/dmux-workflows/SKILL.md` と `skills/autonomous-agent-harness/SKILL.md` にあります。
 
-`/orchestrate [workflow-type] [task-description]`
+## 正規サーフェス
 
-## ワークフロー種別
+- 並列ペイン、ワークツリー、マルチエージェント分割には `dmux-workflows` を推奨。
+- 長時間実行ループ、ガバナンス、スケジューリング、コントロールプレーンスタイルの実行には `autonomous-agent-harness` を推奨。
+- このファイルは互換性のエントリーポイントとしてのみ保持してください。
 
-### feature
-完全な機能実装ワークフロー:
-```
-planner -> tdd-guide -> code-reviewer -> security-reviewer
-```
+## 引数
 
-### bugfix
-バグ調査と修正ワークフロー:
-```
-explorer -> tdd-guide -> code-reviewer
-```
+`$ARGUMENTS`
 
-### refactor
-安全なリファクタリングワークフロー:
-```
-architect -> code-reviewer -> tdd-guide
-```
+## 委譲
 
-### security
-セキュリティ重視のレビュー:
-```
-security-reviewer -> code-reviewer -> architect
-```
-
-## 実行パターン
-
-ワークフロー内の各エージェントについて:
-
-1. **エージェントを呼び出し**（前のエージェントからのコンテキストと共に）
-2. **出力を収集**（構造化されたハンドオフドキュメントとして）
-3. **次のエージェントに渡す**（チェーン内で）
-4. **結果を集約**（最終レポートへ）
-
-## ハンドオフドキュメントフォーマット
-
-エージェント間でハンドオフドキュメントを作成:
-
-```markdown
-## HANDOFF: [前のエージェント] -> [次のエージェント]
-
-### コンテキスト
-[行われたことの要約]
-
-### 発見
-[主要な発見または決定]
-
-### 変更ファイル
-[触れたファイルのリスト]
-
-### 未解決の質問
-[次のエージェントのための未解決項目]
-
-### 推奨事項
-[推奨される次のステップ]
-```
-
-## 最終レポートフォーマット
-
-```
-ORCHESTRATION REPORT
-====================
-ワークフロー: feature
-タスク: ユーザー認証を追加
-エージェント: planner -> tdd-guide -> code-reviewer -> security-reviewer
-
-サマリー
--------
-[1段落の要約]
-
-エージェント出力
--------------
-Planner: [要約]
-TDD Guide: [要約]
-Code Reviewer: [要約]
-Security Reviewer: [要約]
-
-変更ファイル
--------------
-[すべての変更ファイルをリスト]
-
-テスト結果
-------------
-[テスト合格/失敗サマリー]
-
-セキュリティステータス
----------------
-[セキュリティの発見]
-
-推奨
---------------
-[SHIP / 要作業 / ブロック]
-```
+ここで2つ目のワークフロー仕様を維持する代わりに、オーケストレーションスキルを適用します。
+- 分割/並列実行には `dmux-workflows` から開始。
+- ユーザーが永続ループ、ガバナンス、またはオペレーターレイヤーの動作を求めている場合は `autonomous-agent-harness` を導入。
+- ハンドオフは構造化しつつ、メンテナンスされているシーケンスルールはスキルに定義を委ねます。
 
 ## 並列実行
 
@@ -116,6 +38,61 @@ Security Reviewer: [要約]
 出力を1つのレポートに統合
 ```
 
+外部のtmuxペインワーカーと別々のgitワークツリーを使用する場合は `node scripts/orchestrate-worktrees.js plan.json --execute` を使用します。組み込みのオーケストレーションパターンはインプロセスのまま維持されます。ヘルパーは長時間実行またはクロスハーネスのセッション用です。
+
+ワーカーがメインチェックアウトのダーティまたはアントラックなローカルファイルを参照する必要がある場合、プランファイルに `seedPaths` を追加します。ECCは `git worktree add` の後に選択されたパスのみを各ワーカーワークツリーにオーバーレイし、ブランチを分離しつつ進行中のローカルスクリプト、プラン、ドキュメントを公開します。
+
+```json
+{
+  "sessionName": "workflow-e2e",
+  "seedPaths": [
+    "scripts/orchestrate-worktrees.js",
+    "scripts/lib/tmux-worktree-orchestrator.js",
+    ".claude/plan/workflow-e2e-test.json"
+  ],
+  "workers": [
+    { "name": "docs", "task": "Update orchestration docs." }
+  ]
+}
+```
+
+ライブtmux/ワークツリーセッションのコントロールプレーンスナップショットをエクスポートするには:
+
+```bash
+node scripts/orchestration-status.js .claude/plan/workflow-visual-proof.json
+```
+
+スナップショットにはセッションアクティビティ、tmuxペインメタデータ、ワーカー状態、目標、シードされたオーバーレイ、最近のハンドオフサマリーがJSON形式で含まれます。
+
+## オペレーターコマンドセンターのハンドオフ
+
+ワークフローが複数のセッション、ワークツリー、またはtmuxペインにまたがる場合、最終ハンドオフにコントロールプレーンブロックを追加:
+
+```markdown
+CONTROL PLANE
+-------------
+Sessions:
+- アクティブなセッションIDまたはエイリアス
+- 各アクティブワーカーのブランチ + ワークツリーパス
+- 該当する場合のtmuxペインまたはデタッチされたセッション名
+
+Diffs:
+- git statusサマリー
+- 変更ファイルのgit diff --stat
+- マージ/競合リスクの注記
+
+Approvals:
+- 保留中のユーザー承認
+- 確認待ちのブロックされたステップ
+
+Telemetry:
+- 最終アクティビティタイムスタンプまたはアイドルシグナル
+- 推定トークンまたはコストドリフト
+- フックまたはレビューアーが発生させたポリシーイベント
+```
+
+これにより、プランナー、実装者、レビューアー、ループワーカーがオペレーターサーフェスから判読可能になります。
+
 ## 引数
 
 $ARGUMENTS:
@@ -124,6 +101,12 @@ $ARGUMENTS:
 - `refactor <description>` - リファクタリングワークフロー
 - `security <description>` - セキュリティレビューワークフロー
 - `custom <agents> <description>` - カスタムエージェントシーケンス
+
+## カスタムワークフロー例
+
+```
+/orchestrate custom "architect,tdd-guide,code-reviewer" "Redesign caching layer"
+```
 
 ## ヒント
 

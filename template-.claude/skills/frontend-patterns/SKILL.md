@@ -1,11 +1,22 @@
 ---
 name: frontend-patterns
 description: Frontend development patterns for React, Next.js, state management, performance optimization, and UI best practices.
+origin: ECC
 ---
 
 # フロントエンド開発パターン
 
-React、Next.js、パフォーマンスの高いユーザーインターフェースのためのモダンなフロントエンドパターン。
+React、Next.js、パフォーマンスの高いユーザーインターフェースのためのモダンなフロントエンドパターンです。
+
+## 起動条件
+
+- React コンポーネントの構築（コンポジション、props、レンダリング）
+- 状態管理（useState、useReducer、Zustand、Context）
+- データフェッチの実装（SWR、React Query、Server Components）
+- パフォーマンス最適化（メモ化、仮想化、コード分割）
+- フォーム操作（バリデーション、制御コンポーネント、Zod スキーマ）
+- クライアントサイドルーティングとナビゲーションの処理
+- アクセシブルでレスポンシブな UI パターンの構築
 
 ## コンポーネントパターン
 

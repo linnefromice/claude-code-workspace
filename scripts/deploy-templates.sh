@@ -101,7 +101,7 @@ for skill_dir in "${WORK_DIR}/translated/skills"/*/; do
         # その他のファイルもコピー（あれば）
         for f in "${skill_dir}"/*.ja.md; do
             if [ -f "$f" ] && [ "$(basename "$f")" != "SKILL.ja.md" ]; then
-                local basename=$(basename "$f" .ja.md)
+                basename=$(basename "$f" .ja.md)
                 cp "$f" "${TEMPLATE_DIR}/skills/${skill_name}/${basename}.md"
             fi
         done

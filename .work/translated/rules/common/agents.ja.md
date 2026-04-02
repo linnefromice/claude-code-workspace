@@ -15,6 +15,7 @@
 | e2e-runner | E2Eテスト | クリティカルなユーザーフロー |
 | refactor-cleaner | デッドコードクリーンアップ | コード保守 |
 | doc-updater | ドキュメント更新 | ドキュメント更新時 |
+| rust-reviewer | Rust コードレビュー | Rust プロジェクト |
 
 ## 即時エージェント使用
 

@@ -1,8 +1,15 @@
+---
+paths:
+  - "**/*.ts"
+  - "**/*.tsx"
+  - "**/*.js"
+  - "**/*.jsx"
+---
 # TypeScript/JavaScript パターン
 
-> このファイルは [common/patterns.md](../common/patterns.md) をTypeScript/JavaScript固有の内容で拡張しています。
+> このファイルは [common/patterns.md](../common/patterns.md) を TypeScript/JavaScript 固有の内容で拡張します。
 
-## APIレスポンス形式
+## API レスポンス形式
 
 ```typescript
 interface ApiResponse<T> {

@@ -1,3 +1,10 @@
+---
+paths:
+  - "**/*.ts"
+  - "**/*.tsx"
+  - "**/*.js"
+  - "**/*.jsx"
+---
 # TypeScript/JavaScript フック
 
 > このファイルは [common/hooks.md](../common/hooks.md) を TypeScript/JavaScript 固有の内容で拡張します。
