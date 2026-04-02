@@ -1,3 +1,10 @@
+---
+paths:
+  - "**/*.ts"
+  - "**/*.tsx"
+  - "**/*.js"
+  - "**/*.jsx"
+---
 # TypeScript/JavaScript セキュリティ
 
 > このファイルは [common/security.md](../common/security.md) を TypeScript/JavaScript 固有の内容で拡張します。

@@ -1,11 +1,21 @@
 ---
 name: coding-standards
 description: Universal coding standards, best practices, and patterns for TypeScript, JavaScript, React, and Node.js development.
+origin: ECC
 ---
 
 # コーディング規約とベストプラクティス
 
 すべてのプロジェクトに適用できる普遍的なコーディング規約。
+
+## 起動条件
+
+- 新規プロジェクトやモジュールの開始
+- コード品質と保守性のレビュー
+- 規約に従うための既存コードのリファクタリング
+- 命名、フォーマット、構造の一貫性の強制
+- リンティング、フォーマット、型チェックルールのセットアップ
+- コーディング規約への新規コントリビューターのオンボーディング
 
 ## コード品質の原則
 

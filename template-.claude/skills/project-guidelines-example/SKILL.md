@@ -1,3 +1,9 @@
+---
+name: project-guidelines-example
+description: "Example project-specific skill template based on a real production application."
+origin: ECC
+---
+
 # プロジェクトガイドラインスキル（例）
 
 プロジェクト固有スキルの例。独自のプロジェクト用テンプレートとして使用できる。

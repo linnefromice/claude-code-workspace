@@ -1,11 +1,20 @@
 ---
 name: continuous-learning
 description: Automatically extract reusable patterns from Claude Code sessions and save them as learned skills for future use.
+origin: ECC
 ---
 
 # 継続的学習スキル
 
-Claude Codeセッション終了時に自動的に評価を行い、学習したスキルとして保存できる再利用可能なパターンを抽出する。
+Claude Codeセッション終了時に自動的に評価を行い、学習したスキルとして保存できる再利用可能なパターンを抽出します。
+
+## 起動条件
+
+- Claude Code セッションからの自動パターン抽出のセットアップ
+- セッション評価のための Stop フックの設定
+- `~/.claude/skills/learned/` の学習済みスキルのレビューやキュレーション
+- 抽出閾値やパターンカテゴリの調整
+- v1（本スキル）と v2（インスティンクトベース）のアプローチの比較
 
 ## 仕組み
 
@@ -83,7 +92,7 @@ Claude Codeセッション終了時に自動的に評価を行い、学習した
 
 ## 比較メモ（調査: 2025年1月）
 
-### vs Homunculus (github.com/humanplane/homunculus)
+### vs Homunculus
 
 Homunculus v2はより洗練されたアプローチを採用:
 
@@ -107,4 +116,4 @@ Homunculus v2はより洗練されたアプローチを採用:
 4. **ドメインタグ付け** - code-style、testing、git、debuggingなど
 5. **進化パス** - 関連インスティンクトをスキル/コマンドにクラスタリング
 
-参照: `/Users/affoon/Documents/tasks/12-continuous-learning-v2.md` 完全な仕様。
+参照: `docs/continuous-learning-v2-spec.md` 完全な仕様。

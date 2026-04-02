@@ -17,7 +17,9 @@ rules/
 │   └── security.md
 ├── typescript/      # TypeScript/JavaScript 固有
 ├── python/          # Python 固有
-└── golang/          # Go 固有
+├── golang/          # Go 固有
+├── swift/           # Swift 固有
+└── php/             # PHP 固有
 ```
 
 - **common/** にはユニバーサルな原則が含まれます — 言語固有のコード例はありません。
@@ -32,6 +34,8 @@ rules/
 ./install.sh typescript
 ./install.sh python
 ./install.sh golang
+./install.sh swift
+./install.sh php
 
 # 複数の言語を一度にインストール
 ./install.sh typescript python
@@ -52,6 +56,8 @@ cp -r rules/common ~/.claude/rules/common
 cp -r rules/typescript ~/.claude/rules/typescript
 cp -r rules/python ~/.claude/rules/python
 cp -r rules/golang ~/.claude/rules/golang
+cp -r rules/swift ~/.claude/rules/swift
+cp -r rules/php ~/.claude/rules/php
 
 # 注意！！！実際のプロジェクト要件に合わせて設定してください。ここでの設定は参考用です。
 ```
@@ -79,3 +85,22 @@ cp -r rules/golang ~/.claude/rules/golang
    > このファイルは [common/xxx.md](../common/xxx.md) を <言語> 固有の内容で拡張します。
    ```
 4. 利用可能なスキルがあれば参照するか、`skills/` に新しいスキルを作成してください。
+
+## ルールの優先度
+
+言語固有のルールと共通ルールが競合する場合、**言語固有のルールが優先されます**（特定が一般を上書き）。これは標準的なレイヤー設定パターン（CSS の詳細度や `.gitignore` の優先順位と同様）に従います。
+
+- `rules/common/` はすべてのプロジェクトに適用されるユニバーサルなデフォルトを定義します。
+- `rules/golang/`、`rules/python/`、`rules/swift/`、`rules/php/`、`rules/typescript/` などは、言語のイディオムが異なる場合にそれらのデフォルトを上書きします。
+
+### 例
+
+`common/coding-style.md` はデフォルトの原則としてイミュータビリティを推奨しています。言語固有の `golang/coding-style.md` はこれを上書きできます：
+
+> イディオマティックな Go では構造体のミューテーションにポインタレシーバを使用します — 一般的な原則については [common/coding-style.md](../common/coding-style.md) を参照してください。ただし、ここでは Go のイディオマティックなミューテーションが優先されます。
+
+### 上書き注記付きの共通ルール
+
+`rules/common/` 内のルールで、言語固有ファイルによって上書きされる可能性があるものには、以下のマークが付いています：
+
+> **言語に関する注記**: このルールは、このパターンがイディオマティックでない言語の言語固有ルールによって上書きされる場合があります。

@@ -1,6 +1,7 @@
 ---
 name: nutrient-document-processing
 description: Nutrient DWS API を使用して、ドキュメントの処理、変換、OCR、抽出、墨消し、署名、フォーム入力を行います。PDF、DOCX、XLSX、PPTX、HTML、画像に対応しています。
+origin: ECC
 ---
 
 # Nutrient ドキュメント処理

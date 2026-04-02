@@ -1,6 +1,7 @@
 ---
 name: configure-ecc
-description: Everything Claude Code のインタラクティブインストーラー -- スキルとルールの選択・インストールをユーザーレベルまたはプロジェクトレベルのディレクトリに対して案内し、パスを検証し、オプションでインストール済みファイルの最適化を行います。
+description: Interactive installer for Everything Claude Code — guides users through selecting and installing skills and rules to user-level or project-level directories, verifies paths, and optionally optimizes installed files.
+origin: ECC
 ---
 
 # Everything Claude Code (ECC) の設定
@@ -63,24 +64,44 @@ mkdir -p $TARGET/skills $TARGET/rules
 
 ## ステップ 2: スキルの選択とインストール
 
-### 2a: スキルカテゴリの選択
+### 2a: スコープの選択（コア vs ニッチ）
 
-27 のスキルが 4 つのカテゴリに分類されています。`AskUserQuestion` を `multiSelect: true` で使用します：
+デフォルトは**コア（新規ユーザー推奨）** -- `.agents/skills/*` と `skills/search-first/` をコピーし、リサーチファーストのワークフローに対応します。このバンドルは、エンジニアリング、評価、検証、セキュリティ、戦略的コンパクション、フロントエンドデザイン、Anthropic クロスファンクショナルスキル（article-writing、content-engine、market-research、frontend-slides）をカバーします。
+
+`AskUserQuestion`（単一選択）を使用します：
+```
+Question: "コアスキルのみをインストールしますか？ニッチ/フレームワークパックも含めますか？"
+Options:
+  - "コアのみ（推奨）" — "tdd、e2e、evals、verification、research-first、security、frontend patterns、compacting、クロスファンクショナル Anthropic スキル"
+  - "コア + 選択したニッチ" — "コアの後にフレームワーク/ドメイン固有スキルを追加"
+  - "ニッチのみ" — "コアをスキップし、特定のフレームワーク/ドメインスキルをインストール"
+Default: コアのみ
+```
+
+ユーザーがニッチまたはコア + ニッチを選択した場合、以下のカテゴリ選択に進み、ユーザーが選択したニッチスキルのみを含めます。
+
+### 2b: スキルカテゴリの選択
+
+以下の 7 つの選択可能なカテゴリグループがあります。詳細な確認リストは 8 カテゴリの 45 スキルと 1 つのスタンドアロンテンプレートをカバーしています。`AskUserQuestion` を `multiSelect: true` で使用します：
 
 ```
 Question: "どのスキルカテゴリをインストールしますか？"
 Options:
-  - "フレームワーク & 言語" — "Django、Spring Boot、Go、Python、Java、フロントエンド、バックエンドパターン"
+  - "フレームワーク & 言語" — "Django、Laravel、Spring Boot、Go、Python、Java、フロントエンド、バックエンドパターン"
   - "データベース" — "PostgreSQL、ClickHouse、JPA/Hibernate パターン"
   - "ワークフロー & 品質" — "TDD、検証、学習、セキュリティレビュー、コンパクション"
+  - "リサーチ & API" — "深掘りリサーチ、Exa 検索、Claude API パターン"
+  - "ソーシャル & コンテンツ配信" — "X/Twitter API、クロスポストと content-engine の連携"
+  - "メディア生成" — "fal.ai 画像/動画/音声と VideoDB の連携"
+  - "オーケストレーション" — "dmux マルチエージェントワークフロー"
   - "全スキル" — "利用可能なすべてのスキルをインストール"
 ```
 
-### 2b: 個別スキルの確認
+### 2c: 個別スキルの確認
 
 選択された各カテゴリについて、以下のスキル一覧を表示し、ユーザーに特定のスキルの確認または選択解除を求めます。リストが 4 項目を超える場合は、リストをテキストとして表示し、`AskUserQuestion` で「一覧のすべてをインストール」オプションと、ユーザーが特定の名前を貼り付けるための「その他」オプションを使用します。
 
-**カテゴリ: フレームワーク & 言語（16 スキル）**
+**カテゴリ: フレームワーク & 言語（21 スキル）**
 
 | スキル | 説明 |
 |-------|------|
@@ -90,7 +111,12 @@ Options:
 | `django-security` | Django セキュリティ：認証、CSRF、SQL インジェクション、XSS 防止 |
 | `django-tdd` | pytest-django、factory_boy、モッキング、カバレッジを使用した Django テスト |
 | `django-verification` | Django 検証ループ：マイグレーション、リンティング、テスト、セキュリティスキャン |
+| `laravel-patterns` | Laravel アーキテクチャパターン：ルーティング、コントローラー、Eloquent、キュー、キャッシュ |
+| `laravel-security` | Laravel セキュリティ：認証、ポリシー、CSRF、マスアサインメント、レート制限 |
+| `laravel-tdd` | PHPUnit と Pest を使用した Laravel テスト、ファクトリー、フェイク、カバレッジ |
+| `laravel-verification` | Laravel 検証：リンティング、静的解析、テスト、セキュリティスキャン |
 | `frontend-patterns` | React、Next.js、状態管理、パフォーマンス、UI パターン |
+| `frontend-slides` | 依存関係なしの HTML プレゼンテーション、スタイルプレビュー、PPTX-to-web 変換 |
 | `golang-patterns` | Go の慣用的パターン、堅牢な Go アプリケーションのための規約 |
 | `golang-testing` | Go テスト：テーブル駆動テスト、サブテスト、ベンチマーク、ファジング |
 | `java-coding-standards` | Spring Boot 向け Java コーディング標準：命名、イミュータビリティ、Optional、ストリーム |
@@ -114,7 +140,7 @@ Options:
 | スキル | 説明 |
 |-------|------|
 | `continuous-learning` | セッションから再利用可能なパターンを自動抽出し、学習済みスキルとして保存 |
-| `continuous-learning-v2` | 信頼度スコアリング付きの直感ベース学習、スキル/コマンド/エージェントに発展 |
+| `continuous-learning-v2` | 信頼度スコアリング付きのインスティンクトベース学習、スキル/エージェントへの発展、レガシーコマンドシム対応 |
 | `eval-harness` | 評価駆動開発（EDD）のための正式な評価フレームワーク |
 | `iterative-retrieval` | サブエージェントのコンテキスト問題に対する段階的コンテキスト精緻化 |
 | `security-review` | セキュリティチェックリスト：認証、入力、シークレット、API、決済機能 |
@@ -122,13 +148,51 @@ Options:
 | `tdd-workflow` | 80% 以上のカバレッジで TDD を強制：ユニット、統合、E2E |
 | `verification-loop` | 検証および品質ループパターン |
 
+**カテゴリ: ビジネス & コンテンツ（5 スキル）**
+
+| スキル | 説明 |
+|-------|------|
+| `article-writing` | 提供されたボイスを使用したメモ、例、ソースドキュメントからの長文ライティング |
+| `content-engine` | マルチプラットフォームソーシャルコンテンツ、スクリプト、リパーパスワークフロー |
+| `market-research` | ソース帰属付き市場、競合、ファンド、技術リサーチ |
+| `investor-materials` | ピッチデッキ、ワンページャー、投資家メモ、財務モデル |
+| `investor-outreach` | パーソナライズされた投資家コールドメール、ウォームイントロ、フォローアップ |
+
+**カテゴリ: リサーチ & API（3 スキル）**
+
+| スキル | 説明 |
+|-------|------|
+| `deep-research` | firecrawl と exa MCP を使用したマルチソース深掘りリサーチ（引用付きレポート） |
+| `exa-search` | Exa MCP を使用した Web、コード、企業、人物のニューラル検索 |
+| `claude-api` | Anthropic Claude API パターン：Messages、streaming、tool use、vision、batches、Agent SDK |
+
+**カテゴリ: ソーシャル & コンテンツ配信（2 スキル）**
+
+| スキル | 説明 |
+|-------|------|
+| `x-api` | X/Twitter API インテグレーション：投稿、スレッド、検索、アナリティクス |
+| `crosspost` | マルチプラットフォームコンテンツ配信（プラットフォームネイティブ適応） |
+
+**カテゴリ: メディア生成（2 スキル）**
+
+| スキル | 説明 |
+|-------|------|
+| `fal-ai-media` | fal.ai MCP を使用した統合 AI メディア生成（画像、動画、音声） |
+| `video-editing` | 実写映像のカット、構造化、拡張のための AI アシスト動画編集 |
+
+**カテゴリ: オーケストレーション（1 スキル）**
+
+| スキル | 説明 |
+|-------|------|
+| `dmux-workflows` | dmux を使用した並列エージェントセッションのマルチエージェントオーケストレーション |
+
 **スタンドアロン**
 
 | スキル | 説明 |
 |-------|------|
 | `project-guidelines-example` | プロジェクト固有のスキルを作成するためのテンプレート |
 
-### 2c: インストールの実行
+### 2d: インストールの実行
 
 選択された各スキルについて、スキルディレクトリ全体をコピーします：
 ```bash
@@ -198,10 +262,15 @@ grep -rn "skills/" $TARGET/skills/
 
 一部のスキルは他のスキルを参照しています。以下の依存関係を検証します：
 - `django-tdd` は `django-patterns` を参照している可能性があります
+- `laravel-tdd` は `laravel-patterns` を参照している可能性があります
 - `springboot-tdd` は `springboot-patterns` を参照している可能性があります
 - `continuous-learning-v2` は `~/.claude/homunculus/` ディレクトリを参照しています
 - `python-testing` は `python-patterns` を参照している可能性があります
 - `golang-testing` は `golang-patterns` を参照している可能性があります
+- `crosspost` は `content-engine` と `x-api` を参照しています
+- `deep-research` は `exa-search` を参照しています（補完的な MCP ツール）
+- `fal-ai-media` は `videodb` を参照しています（補完的なメディアスキル）
+- `x-api` は `content-engine` と `crosspost` を参照しています
 - 言語固有のルールは `common/` の対応するルールを参照しています
 
 ### 4d: 問題の報告

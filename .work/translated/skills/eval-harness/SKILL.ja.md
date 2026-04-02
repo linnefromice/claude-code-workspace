@@ -1,12 +1,21 @@
 ---
 name: eval-harness
 description: Formal evaluation framework for Claude Code sessions implementing eval-driven development (EDD) principles
+origin: ECC
 tools: Read, Write, Edit, Bash, Grep, Glob
 ---
 
-# Evalハーネススキル
+# Eval ハーネススキル
 
-eval駆動開発（EDD）原則を実装するClaude Codeセッション用の正式な評価フレームワーク。
+eval 駆動開発（EDD）原則を実装する Claude Code セッション用の正式な評価フレームワークです。
+
+## 起動条件
+
+- AI アシストワークフローのための eval 駆動開発（EDD）のセットアップ
+- Claude Code タスク完了のための合格/不合格基準の定義
+- pass@k メトリクスによるエージェント信頼性の測定
+- プロンプトやエージェント変更のためのリグレッションテストスイートの作成
+- モデルバージョン間のエージェントパフォーマンスのベンチマーク
 
 ## 哲学
 
@@ -225,3 +234,37 @@ Capability: 5/5 合格（pass@3: 100%）
 Regression: 3/3 合格（pass^3: 100%）
 ステータス: SHIP IT
 ```
+
+## プロダクト Eval（v1.8）
+
+ユニットテストだけでは行動品質をキャプチャできない場合に、プロダクト eval を使用します。
+
+### Grader タイプ
+
+1. Code grader（決定論的アサーション）
+2. Rule grader（正規表現/スキーマ制約）
+3. Model grader（LLM-as-judge ルーブリック）
+4. Human grader（曖昧な出力の手動判定）
+
+### pass@k ガイダンス
+
+- `pass@1`: 直接的な信頼性
+- `pass@3`: 制御されたリトライ下の実用的信頼性
+- `pass^3`: 安定性テスト（3 回すべてのランが合格する必要がある）
+
+推奨閾値：
+- Capability eval: pass@3 >= 0.90
+- Regression eval: pass^3 = 1.00（リリースクリティカルなパス向け）
+
+### Eval アンチパターン
+
+- 既知の eval サンプルにプロンプトをオーバーフィッティングする
+- ハッピーパスの出力のみを測定する
+- パス率を追いかけてコストとレイテンシのドリフトを無視する
+- リリースゲートにフレーキーな grader を許容する
+
+### 最小 Eval アーティファクトレイアウト
+
+- `.claude/evals/<feature>.md` 定義
+- `.claude/evals/<feature>.log` 実行履歴
+- `docs/releases/<version>/eval-summary.md` リリーススナップショット

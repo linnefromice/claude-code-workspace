@@ -85,13 +85,13 @@ EOF",
 
 ### フェーズ 0: プロンプト強化（オプション）
 
-`[Mode: Prepare]` - ace-tool MCPが利用可能な場合、`mcp__ace-tool__enhance_prompt` を呼び出し、**元の $ARGUMENTS を強化された結果で置換して後続のCodex呼び出しに使用**
+`[Mode: Prepare]` - ace-tool MCPが利用可能な場合、`mcp__ace-tool__enhance_prompt` を呼び出し、**元の $ARGUMENTS を強化された結果で置換して後続のCodex呼び出しに使用**。利用不可の場合は `$ARGUMENTS` をそのまま使用。
 
 ### フェーズ 1: リサーチ
 
 `[Mode: Research]` - 要件の理解とコンテキストの収集
 
-1. **コード検索**（ace-tool MCPが利用可能な場合）: `mcp__ace-tool__search_context` を呼び出して既存のAPI、データモデル、サービスアーキテクチャを取得
+1. **コード検索**（ace-tool MCPが利用可能な場合）: `mcp__ace-tool__search_context` を呼び出して既存のAPI、データモデル、サービスアーキテクチャを取得。利用不可の場合は組み込みツールを使用: ファイル探索に `Glob`、シンボル/API検索に `Grep`、コンテキスト収集に `Read`、より深い探索に `Task`（Exploreエージェント）。
 2. 要件の完全性スコア（0-10）: 7以上で続行、7未満で停止して補足
 
 ### フェーズ 2: アイデア出し

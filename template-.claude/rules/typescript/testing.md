@@ -1,3 +1,10 @@
+---
+paths:
+  - "**/*.ts"
+  - "**/*.tsx"
+  - "**/*.js"
+  - "**/*.jsx"
+---
 # TypeScript/JavaScript テスティング
 
 > このファイルは [common/testing.md](../common/testing.md) を TypeScript/JavaScript 固有の内容で拡張します。
