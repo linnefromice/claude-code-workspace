@@ -8,6 +8,8 @@ origin: ECC
 
 Model Context Protocol（MCP）は、AI アシスタントがサーバーからツールを呼び出し、リソースを読み取り、プロンプトを使用することを可能にします。MCP サーバーの構築やメンテナンス時にこのスキルを使用してください。SDK API は進化しています。現在のメソッド名とシグネチャについては Context7（"MCP" で query-docs）または公式 MCP ドキュメントを確認してください。
 
+ある機能をルール、スキル、MCP、あるいは単純な CLI/API ワークフローのいずれとして実装すべきか、という広い範囲のルーティング判断については [docs/capability-surface-selection.md](../../docs/capability-surface-selection.md) を参照してください。
+
 ## 使用タイミング
 
 使用シーン: 新しい MCP サーバーの実装、ツールやリソースの追加、stdio vs HTTP の選択、SDK のアップグレード、MCP 登録やトランスポートの問題のデバッグ。

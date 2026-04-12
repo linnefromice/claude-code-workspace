@@ -18,7 +18,7 @@ Everything Claude Code プロジェクトのインタラクティブなステッ
 ## 前提条件
 
 このスキルは起動前に Claude Code からアクセス可能である必要があります。ブートストラップ方法は2つあります：
-1. **プラグイン経由**: `/plugin install everything-claude-code` -- プラグインがこのスキルを自動的に読み込みます
+1. **プラグイン経由**: `/plugin install ecc@ecc` -- プラグインがこのスキルを自動的に読み込みます
 2. **手動**: このスキルのみを `~/.claude/skills/configure-ecc/SKILL.md` にコピーし、「configure ecc」と発言して起動します
 
 ---
@@ -139,7 +139,7 @@ Options:
 
 | スキル | 説明 |
 |-------|------|
-| `continuous-learning` | セッションから再利用可能なパターンを自動抽出し、学習済みスキルとして保存 |
+| `continuous-learning` | レガシー v1 の Stop フックによるセッションパターン抽出。新規インストールでは `continuous-learning-v2` を推奨 |
 | `continuous-learning-v2` | 信頼度スコアリング付きのインスティンクトベース学習、スキル/エージェントへの発展、レガシーコマンドシム対応 |
 | `eval-harness` | 評価駆動開発（EDD）のための正式な評価フレームワーク |
 | `iterative-retrieval` | サブエージェントのコンテキスト問題に対する段階的コンテキスト精緻化 |
@@ -190,7 +190,7 @@ Options:
 
 | スキル | 説明 |
 |-------|------|
-| `project-guidelines-example` | プロジェクト固有のスキルを作成するためのテンプレート |
+| `docs/examples/project-guidelines-template.md` | プロジェクト固有のスキルを作成するためのテンプレート |
 
 ### 2d: インストールの実行
 

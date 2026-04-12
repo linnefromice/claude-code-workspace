@@ -18,6 +18,7 @@ rules/
 ├── typescript/      # TypeScript/JavaScript 固有
 ├── python/          # Python 固有
 ├── golang/          # Go 固有
+├── web/             # Web およびフロントエンド固有
 ├── swift/           # Swift 固有
 └── php/             # PHP 固有
 ```
@@ -34,6 +35,7 @@ rules/
 ./install.sh typescript
 ./install.sh python
 ./install.sh golang
+./install.sh web
 ./install.sh swift
 ./install.sh php
 
@@ -56,6 +58,7 @@ cp -r rules/common ~/.claude/rules/common
 cp -r rules/typescript ~/.claude/rules/typescript
 cp -r rules/python ~/.claude/rules/python
 cp -r rules/golang ~/.claude/rules/golang
+cp -r rules/web ~/.claude/rules/web
 cp -r rules/swift ~/.claude/rules/swift
 cp -r rules/php ~/.claude/rules/php
 
@@ -85,6 +88,8 @@ cp -r rules/php ~/.claude/rules/php
    > このファイルは [common/xxx.md](../common/xxx.md) を <言語> 固有の内容で拡張します。
    ```
 4. 利用可能なスキルがあれば参照するか、`skills/` に新しいスキルを作成してください。
+
+`web/` のような非言語ドメインについても、スタンドアロンのルールセットを正当化できるだけの再利用可能なドメイン固有ガイダンスがある場合は、同じレイヤードパターンに従ってください。
 
 ## ルールの優先度
 
