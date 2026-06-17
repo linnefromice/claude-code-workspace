@@ -206,25 +206,25 @@ export const buildCreateOrderUseCase = (deps: { db: SqlClient; stripe: StripeCli
 エコシステム間で同じ境界ルールを使用します。変わるのは構文と配線スタイルのみです。
 
 - **TypeScript/JavaScript**
-    - ポート: `application/ports/*` としてインターフェース/型を定義。
-    - ユースケース: コンストラクタ/引数注入によるクラス/関数。
-    - アダプター: `adapters/inbound/*`、`adapters/outbound/*`。
-    - コンポジション: 明示的なファクトリ/コンテナモジュール（隠れたグローバルなし）。
+  - ポート: `application/ports/*` としてインターフェース/型を定義。
+  - ユースケース: コンストラクタ/引数注入によるクラス/関数。
+  - アダプター: `adapters/inbound/*`、`adapters/outbound/*`。
+  - コンポジション: 明示的なファクトリ/コンテナモジュール（隠れたグローバルなし）。
 - **Java**
-    - パッケージ: `domain`、`application.port.in`、`application.port.out`、`application.usecase`、`adapter.in`、`adapter.out`。
-    - ポート: `application.port.*` 内のインターフェース。
-    - ユースケース: プレーンクラス（Spring の `@Service` はオプション、必須ではない）。
-    - コンポジション: Spring 設定または手動配線クラス。配線をドメイン/ユースケースクラスの外に保つ。
+  - パッケージ: `domain`、`application.port.in`、`application.port.out`、`application.usecase`、`adapter.in`、`adapter.out`。
+  - ポート: `application.port.*` 内のインターフェース。
+  - ユースケース: プレーンクラス（Spring の `@Service` はオプション、必須ではない）。
+  - コンポジション: Spring 設定または手動配線クラス。配線をドメイン/ユースケースクラスの外に保つ。
 - **Kotlin**
-    - モジュール/パッケージは Java の分割をミラーリング（`domain`、`application.port`、`application.usecase`、`adapter`）。
-    - ポート: Kotlin インターフェース。
-    - ユースケース: コンストラクタ注入によるクラス（Koin/Dagger/Spring/手動）。
-    - コンポジション: モジュール定義または専用のコンポジション関数。サービスロケーターパターンを避ける。
+  - モジュール/パッケージは Java の分割をミラーリング（`domain`、`application.port`、`application.usecase`、`adapter`）。
+  - ポート: Kotlin インターフェース。
+  - ユースケース: コンストラクタ注入によるクラス（Koin/Dagger/Spring/手動）。
+  - コンポジション: モジュール定義または専用のコンポジション関数。サービスロケーターパターンを避ける。
 - **Go**
-    - パッケージ: `internal/<feature>/domain`、`application`、`ports`、`adapters/inbound`、`adapters/outbound`。
-    - ポート: 消費側のアプリケーションパッケージが所有する小さなインターフェース。
-    - ユースケース: インターフェースフィールドを持つ構造体と明示的な `New...` コンストラクタ。
-    - コンポジション: `cmd/<app>/main.go`（または専用の配線パッケージ）で配線し、コンストラクタは明示的に保つ。
+  - パッケージ: `internal/<feature>/domain`、`application`、`ports`、`adapters/inbound`、`adapters/outbound`。
+  - ポート: 消費側のアプリケーションパッケージが所有する小さなインターフェース。
+  - ユースケース: インターフェースフィールドを持つ構造体と明示的な `New...` コンストラクタ。
+  - コンポジション: `cmd/<app>/main.go`（または専用の配線パッケージ）で配線し、コンストラクタは明示的に保つ。
 
 ## 避けるべきアンチパターン
 

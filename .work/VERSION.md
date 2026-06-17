@@ -8,13 +8,31 @@
 
 | 項目 | コミットハッシュ | 日時 | 備考 |
 |------|----------------|------|------|
-| **参照元リポジトリ** | `31525854b5fc65af72acfdaada52ece8504bb7ff` | 2026-04-02 | affaan-m/everything-claude-code |
-| **翻訳実施時** | `929572f6` | 2026-04-02 | このリポジトリの翻訳作業時点 |
-| **汎用化実施時** | `929572f6` | 2026-04-02 | このリポジトリの汎用化作業時点 |
+| **参照元リポジトリ** | `125d5e619905d97b519a887d5bc7332dcc448a52` | 2026-04-12 | affaan-m/everything-claude-code |
+| **翻訳実施時** | `b62ff6c` | 2026-04-12 | このリポジトリの翻訳作業時点 |
+| **汎用化実施時** | `b62ff6c` | 2026-04-12 | このリポジトリの汎用化作業時点 |
 
 ---
 
 ## バージョン履歴
+
+### v4 (2026-04-12) - 差分更新 (Phase A)
+
+| 項目 | 値 |
+|------|-----|
+| 作業日 | 2026-04-12 |
+| 参照元コミット | `125d5e619905d97b519a887d5bc7332dcc448a52` |
+| 前回参照元コミット | `31525854b5fc65af72acfdaada52ece8504bb7ff` |
+| 変更ファイル数 | 92 (翻訳対象ディレクトリ) |
+| 追加 | 66 files (翻訳対象: 45, 除外: 21) |
+| 更新 | 25 files (翻訳対象: 14, 除外: 11 = script/excluded skill) |
+| 削除 | 1 file (project-guidelines-example) |
+| 除外カテゴリ | Flutter, Dart, C#/.NET, Kotlin, Rust 固有ルール/スキル、healthcare, crypto/DeFi 系、vertical (finance/logistics) スキル |
+| 追加カテゴリ | 汎用エージェント×9 (code-architect, code-explorer 等), コマンド×8 (hookify, jira, review-pr 等), rules/web×7, 汎用スキル×21 (github-ops, seo, email-ops 等) |
+| 汎用化後ファイル数 | 213 (agents:30, commands:62, rules:26, skills:92, contexts:3) |
+| 備考 | Phase A スコープ (汎用性の高いファイルのみ翻訳)。残り 21 件の A (言語/ドメイン特化) は Phase B で判断 |
+
+---
 
 ### v3 (2026-04-02) - 差分更新
 

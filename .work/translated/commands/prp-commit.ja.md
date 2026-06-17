@@ -1,6 +1,6 @@
 ---
-description: 自然言語によるファイルターゲティング付きのクイックコミット — 何をコミットするか平易な英語で記述
-argument-hint: [target description]（空欄 = すべての変更）
+description: "自然言語によるファイルターゲティング付きのクイックコミット — 何をコミットするか平易な英語で記述"
+argument-hint: "[target description]（空欄 = すべての変更）"
 ---
 
 # スマートコミット

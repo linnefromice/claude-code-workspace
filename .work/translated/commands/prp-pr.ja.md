@@ -1,6 +1,6 @@
 ---
-description: 現在のブランチの未プッシュコミットからGitHub PRを作成 — テンプレートを検出し、変更を分析し、プッシュ
-argument-hint: [base-branch]（デフォルト: main）
+description: "現在のブランチの未プッシュコミットからGitHub PRを作成 — テンプレートを検出し、変更を分析し、プッシュ"
+argument-hint: "[base-branch]（デフォルト: main）"
 ---
 
 # プルリクエスト作成
@@ -54,7 +54,7 @@ PRの状態とCIチェックを確認。
 
 ## エッジケース
 
-- **`gh` CLIがない**: 停止: 「GitHub CLI (`gh`) が必要です。インストール: https://cli.github.com/」
+- **`gh` CLIがない**: 停止: 「GitHub CLI (`gh`) が必要です。インストール: <https://cli.github.com/>」
 - **未認証**: 停止: 「まず `gh auth login` を実行してください。」
 - **フォースプッシュが必要**: `git push --force-with-lease` を使用（`--force` は使用しない）。
 - **複数のPRテンプレート**: リストを表示してユーザーに選択を依頼。
